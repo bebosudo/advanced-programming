@@ -1,9 +1,18 @@
 sudo: false
 language: cpp
 
+addons:
+  apt:
+    sources:
+      - llvm-toolchain-precise-3.8
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - clang-3.8
+
 compiler:
-  - g++
-  - clang++
+  - g++-5
+  - clang++-3.8
 
 script:
   - make CXX=$CXX
