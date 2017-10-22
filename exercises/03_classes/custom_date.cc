@@ -7,6 +7,7 @@
 
 enum class Month { jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec };
 int month_to_days(Month m);
+Month days_to_month(const unsigned short int days, int &leftover);
 
 class CustomDate {
   // Consider days since the epoch (1/1/1970).
@@ -14,52 +15,151 @@ class CustomDate {
   Month _month;
   int _year;
 
+  int _days_since_epoch() const;
+
 public:
-  int _days_since_epoch(CustomDate date);
-  CustomDate(int year, Month month, short unsigned int day);
-  int day() const;
-  Month month() const;
-  int year() const;
+  CustomDate(int year, Month month, short unsigned int day)
+      : _day{day}, _month{month}, _year{year} {}
+
+  int day() const { return _day; }
+  Month month() const { return _month; }
+  int year() const { return _year; }
+
+  void add_day(const unsigned int n);
 };
 
-int main(int argc, char const *argv[]) {
-  unsigned int i = 0;
-  std::cout << i - 1 << std::endl;
-  Month m = Month::jul;
-  // std::cout << m << std::endl;
-  CustomDate cd{1970, Month::jan, 2};
-  std::cout << CustomDate::_days_since_epoch(cd) << std::endl;
+// Helper functions.
+bool operator==(const CustomDate &lhs, const CustomDate &rhs) {
+  return lhs.year() == rhs.year() && lhs.month() == rhs.month() &&
+         lhs.day() == rhs.day();
+}
+bool operator!=(const CustomDate &lhs, const CustomDate &rhs) {
+  return !(lhs == rhs);
 }
 
-CustomDate::CustomDate(int year, Month month, short unsigned int day)
-    : _day{day}, _month{month}, _year{year} {}
-int CustomDate::day() const { return _day; };
-Month CustomDate::month() const { return _month; };
-int CustomDate::year() const { return _year; };
-int CustomDate::_days_since_epoch(CustomDate date) {
-  unsigned int d = (date.year() - 1970) * 365;
-  d += month_to_days(date.month());
-  return d + date.day();
+std::ostream &operator<<(std::ostream &os, const CustomDate &d);
+
+int main(int argc, char const *argv[]) {
+
+  CustomDate cd0{1970, Month::jan, 30};
+  CustomDate cd1{1970, Month::jan, 1};
+  CustomDate cd2{1970, Month::mar, 31};
+  CustomDate cd3{1970, Month::dec, 31};
+
+  std::cout << cd0 << std::endl;
+  cd0.add_day(1);
+  std::cout << cd0 << std::endl << std::endl;
+
+  std::cout << cd1 << std::endl;
+  cd1.add_day(1);
+  std::cout << cd1 << std::endl << std::endl;
+
+  std::cout << cd2 << std::endl;
+  cd2.add_day(1);
+  std::cout << cd2 << std::endl << std::endl;
+
+  std::cout << cd3 << std::endl;
+  cd3.add_day(1);
+  std::cout << cd3 << std::endl << std::endl;
+}
+
+int CustomDate::_days_since_epoch() const {
+  unsigned int d = (year() - 1970) * 365;
+  d += month_to_days(month());
+  return d + day() - 1;
 };
 
 int month_to_days(Month m) {
+  // Return the number of days from Jan 1st up to the first day of the month
+  // passed as argument.
   switch (m) {
   case Month::jan:
-  case Month::mar:
-  case Month::may:
-  case Month::jul:
-  case Month::aug:
-  case Month::oct:
-  case Month::dec:
-    return 31;
-
-  case Month::apr:
-  case Month::jun:
-  case Month::sep:
-  case Month::nov:
-    return 30;
-
+    return 0;
   case Month::feb:
-    return 28;
+    return 31;
+  case Month::mar:
+    return 31 + 28;
+  case Month::apr:
+    return 31 + 28 + 31;
+  case Month::may:
+    return 31 + 28 + 31 + 30;
+  case Month::jun:
+    return 31 + 28 + 31 + 30 + 31;
+  case Month::jul:
+    return 31 + 28 + 31 + 30 + 31 + 30;
+  case Month::aug:
+    return 31 + 28 + 31 + 30 + 31 + 30 + 31;
+  case Month::sep:
+    return 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31;
+  case Month::oct:
+    return 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30;
+  case Month::nov:
+    return 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31;
+  case Month::dec:
+    // return 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30;
+    return 365 - 31;
+  default:
+    exit(-1);
   }
+}
+
+Month days_to_month(const unsigned short int days, int &leftover) {
+  if (days <= 31) {
+    leftover = days;
+    return Month::jan;
+  } else if (days <= 31 + 28) {
+    leftover = days % (31);
+    return Month::feb;
+  } else if (days <= 31 + 28 + 31) {
+    leftover = days % (31 + 28);
+    return Month::mar;
+  } else if (days <= 31 + 28 + 31 + 30) {
+    leftover = days % (31 + 28 + 31);
+    return Month::apr;
+  } else if (days <= 31 + 28 + 31 + 30 + 31) {
+    leftover = days % (31 + 28 + 31 + 30);
+    return Month::may;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30) {
+    leftover = days % (31 + 28 + 31 + 30 + 31);
+    return Month::jun;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30 + 31) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30);
+    return Month::jul;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30 + 31);
+    return Month::aug;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31);
+    return Month::sep;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30);
+    return Month::oct;
+  } else if (days <= 31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31);
+    return Month::nov;
+  } else if (days <= 365) {
+    leftover = days % (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30);
+    return Month::dec;
+  } else {
+    exit(-1);
+  }
+}
+
+void CustomDate::add_day(const unsigned int n) {
+  unsigned int d = this->_days_since_epoch();
+
+  // Add the days passed as argument to the days of the current date.
+  d += (n + 1);
+
+  _year = (d / 365) + 1970;
+
+  int leftover;
+  _month = days_to_month(d % 365, leftover);
+
+  _day = leftover;
+}
+
+std::ostream &operator<<(std::ostream &os, const CustomDate &d) {
+  return os << d.year() << "/" << ((int)d.month()) + 1 << "/" << d.day();
+  // return os;
 }
