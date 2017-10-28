@@ -1,5 +1,5 @@
 SRC = $(wildcard *.cc)
-CXX = c++
+CXX = clang++
 CXXFLAGS = -g -std=c++11 -Wall -Wextra -I ../../lectures/04_error_handling
 EXE = $(SRC:.cc=.x)
 INC = $(wildcard *.h)
@@ -10,7 +10,7 @@ INC = $(wildcard *.h)
 all: $(EXE)
 
 %.x: %.cc 
-	$(CXX) $< -o $@ $(CXXFLAGS)
+	$(CXX) $< -o ../build/$@ $(CXXFLAGS)
 
 format: $(SRC) $(INC)
 	@clang-format -i $^ 2>/dev/null || echo "Please install clang-format to run this commands"
