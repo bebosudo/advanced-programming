@@ -5,16 +5,18 @@
 
 #include "llist.h"
 
-const bool DEBUG = false;
+const bool DEBUG = true;
 
 int main() {
   // To test the empty constructor.
   List<int> empty_l;
   empty_l.print();
-  std::cout << "-------\n";
+  empty_l.reset();
 
   // To test the constructor with one argument.
   List<int> l{42};
+
+  // Perform some tests on various methods, combined together.
   l.print();
   l.insert(2, Insertion_method::push_back);
   l.insert(2, Insertion_method::push_back);
@@ -40,6 +42,16 @@ int main() {
 
   l.reset();
   l.print();
+  l.insert(0, Insertion_method::push_front);
+  l.insert(0, Insertion_method::push_back);
+  l.print();
+
+  l.reset();
+  l.print();
+  l.insert(1, Insertion_method::push_back);
+  l.insert(2, Insertion_method::push_back);
+  l.insert(3, Insertion_method::push_front);
+  l.print();
 
   return 0;
 }
@@ -54,7 +66,7 @@ List<value_type>::List(value_type value) : _size{1} {
 template <typename value_type>
 void List<value_type>::print() {
   if (not head) {
-    std::cout << "[] (size " << size() << ")\n";
+    std::cout << "[] (len: " << size() << ")\n";
     return;
   }
 
@@ -70,7 +82,7 @@ void List<value_type>::print() {
     node_iter = node_iter->next.get();
     std::cout << sep << node_iter->val;
   }
-  std::cout << "] (size " << size() << ")\n";
+  std::cout << "] (len: " << size() << ")\n";
 }
 
 template <typename value_type>
@@ -78,10 +90,16 @@ void List<value_type>::push_front(const value_type& v) {
   // Release the head so another element can be promoted as head of the list.
   head = std::unique_ptr<node>(new node(v, head.release()));
   _size++;
+  if (size() == 1) tail = head.get();
 }
 
 template <typename value_type>
 void List<value_type>::push_back(const value_type& v) {
+  if (head == nullptr) {
+    push_front(v);
+    return;
+  }
+
   // Use the tail to reach the node at the end of the list.
   tail->next = std::unique_ptr<node>(new node(v));
   tail = tail->next.get();
@@ -104,13 +122,15 @@ void List<value_type>::insert(const value_type& v, const Insertion_method m) {
     default:
       throw std::invalid_argument("Insertion method not known.");
   }
-  if (DEBUG) std::cout << " (list size " << size() << ")\n";
+  if (DEBUG) std::cout << " (len: " << size() << ")\n";
 }
 
 template <typename value_type>
 void List<value_type>::reset() {
   head.reset();
+  tail = nullptr;
   _size = 0;
+  if (DEBUG) std::cout << "-------\n\n";
 }
 
 /* We need to take into account a specific corner case: there are multiple
@@ -121,9 +141,10 @@ void List<value_type>::reset() {
 template <typename value_type>
 void List<value_type>::prune_node(const value_type v) {
   if (DEBUG)
-    std::cout << "pruning " << v << " (list size before " << size() << ")\n";
+    std::cout << "pruning " << v << " (len before: " << size() << ")\n";
+
   if (not head or (head->val != v and not head->next)) {
-    // There's nothing or nothing to remove in the list (made of a single el).
+    // There's nothing/nothing that matches in the list (made of a single el).
     return;
   } else if (head->val == v and not head->next) {
     // The list is made only of a single element, which matches. Delete all and
@@ -150,8 +171,7 @@ void List<value_type>::prune_node(const value_type v) {
     }
   }
   tail = node_iter;
-
   _size -= n_removed;
-  if (DEBUG)
-    std::cout << "pruned " << v << " (list size after " << size() << ")\n";
+
+  if (DEBUG) std::cout << "pruned " << v << " (len after: " << size() << ")\n";
 }
