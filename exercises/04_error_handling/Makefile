@@ -9,7 +9,7 @@ INC = $(wildcard *.h)
 
 all: $(EXE)
 
-%.x: %.cc 
+%.x: %.cc
 	$(CXX) $< -o ../build/$@ $(CXXFLAGS)
 
 format: $(SRC) $(INC)

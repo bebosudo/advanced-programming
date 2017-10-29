@@ -28,13 +28,13 @@ class List {
 
   unsigned int _size;
 
- public:
   // append the newly created node at the end of the list
   void push_back(const value_type& v);
 
   // insert the newly created node in front of the list
   void push_front(const value_type& v);
 
+ public:
   // insert a new node with the value v according to the method m
   // this method should be used to fill the list
   void insert(const value_type& v, const Insertion_method m);
