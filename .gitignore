@@ -2,3 +2,4 @@ bucket*
 *as_src*
 build/
 *.x
+a.out
