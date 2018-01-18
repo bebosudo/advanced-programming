@@ -9,3 +9,4 @@ a.out
 .*
 __pycache__
 *pyc
+*.ini
