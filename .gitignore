@@ -3,10 +3,14 @@ bucket*
 build/
 *.x
 a.out
-# 
+#
 *.swp
 .ipynb_checkpoints
 .*
 __pycache__
 *pyc
 *.ini
+
+exam/*.sublime-*
+exam/c++/build/
+exam/c++/bin/
