@@ -1,0 +1,3 @@
+[submodule "exam/c++/doctest"]
+	path = exam/c++/doctest
+	url = git@github.com:onqtam/doctest.git
