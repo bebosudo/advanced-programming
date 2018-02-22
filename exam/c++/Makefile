@@ -20,7 +20,7 @@ $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	@echo "Linking complete!"
 
-$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cc
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cc $(INCLUDES)
 	@mkdir -p $(OBJDIR) $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 	@echo -e "Compiled "$<" successfully!\n"
