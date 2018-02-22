@@ -22,4 +22,7 @@ class BTree<K, V, cmp>::Node {
         std::unique_ptr<BTree::Node> left, right;
 
         Node(std::pair<K, V> pair): key{pair.first}, value{pair.second} {};
+
+        void set_left(Node &child) { left = child; };
+        void set_right(Node &child) { right = child; };
 };
