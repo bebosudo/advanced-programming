@@ -10,8 +10,22 @@ class BTree {
     public:
         BTree() {};
 
-        //insert(std::pair<K, V>);
+        bool insert(K key, V value);
+        void print();
+        bool clear();
+        void balance();
+        
+        std::pair<K, V> erase(K key);
 
+        class Iterator;
+        Iterator begin();
+        Iterator end();
+
+        class ConstIterator;
+        ConstIterator cbegin();
+        ConstIterator cend();
+
+        Iterator find(K key);
 };
 
 template <typename K, typename V, typename cmp>
