@@ -3,6 +3,7 @@ template <typename K, typename V, typename cmp>
 class BTree {
     private:
         std::unique_ptr<int> root;
+        unsigned int _size{0};
 
         class Node;
 
@@ -25,6 +26,8 @@ class BTree {
         ConstIterator cend();
 
         Iterator find(K key);
+
+        unsigned int size() { return _size; };
 };
 
 template <typename K, typename V, typename cmp>
