@@ -1,44 +1,44 @@
 
 template <typename K, typename V, typename cmp>
 class BTree {
-    private:
-        std::unique_ptr<int> root;
-        unsigned int _size{0};
+   private:
+    std::unique_ptr<int> root;
+    unsigned int _size{0};
 
-        class Node;
+    class Node;
 
-    public:
-        BTree() {};
+   public:
+    BTree(){};
 
-        bool insert(K key, V value);
-        void print();
-        bool clear();
-        void balance();
-        
-        std::pair<K, V> erase(K key);
+    bool insert(K key, V value);
+    void print();
+    bool clear();
+    void balance();
 
-        class Iterator;
-        Iterator begin();
-        Iterator end();
+    std::pair<K, V> erase(K key);
 
-        class ConstIterator;
-        ConstIterator cbegin();
-        ConstIterator cend();
+    class Iterator;
+    Iterator begin();
+    Iterator end();
 
-        Iterator find(K key);
+    class ConstIterator;
+    ConstIterator cbegin();
+    ConstIterator cend();
 
-        unsigned int size() { return _size; };
+    Iterator find(K key);
+
+    unsigned int size() { return _size; };
 };
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
-    public:
-        K key;
-        V value;
-        std::unique_ptr<BTree::Node> left, right;
+   public:
+    K key;
+    V value;
+    std::unique_ptr<BTree::Node> left, right;
 
-        Node(std::pair<K, V> pair): key{pair.first}, value{pair.second} {};
+    Node(std::pair<K, V> pair) : key{pair.first}, value{pair.second} {};
 
-        void set_left(Node &child) { left = child; };
-        void set_right(Node &child) { right = child; };
+    void set_left(Node& child) { left = child; };
+    void set_right(Node& child) { right = child; };
 };

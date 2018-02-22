@@ -25,6 +25,10 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cc
 	$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiled "$<" successfully!"
 
+format: $(SOURCES)
+	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
+	@echo "Formatting done!"
+
 .PHONY: clean
 clean:
 	@$(rm) $(OBJECTS)
