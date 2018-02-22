@@ -11,5 +11,10 @@ TEST_CASE("testing the btree implementation of the insert method") {
 
     REQUIRE(tree.size() == 1);
 
-    SUBCASE("") { CHECK(); }
+    SUBCASE("test more insertions") {
+        key++;
+        tree.insert(key, value);
+
+        CHECK(tree.size() == 2);
+    }
 }

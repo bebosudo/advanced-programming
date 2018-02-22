@@ -1,7 +1,7 @@
 TARGET   = btree.x
 
 CC       = g++
-CFLAGS   = -std=c++17 -Wall -Wextra -I. -Idoctest/doctest/
+CFLAGS   = -O0 -std=c++11 -Wall -Wextra -I. -Idoctest/doctest/
 
 LINKER   = g++
 LFLAGS   = -Wall -I. -lm
@@ -16,14 +16,14 @@ OBJECTS  = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 rm       = rm -f
 
 
-$(BINDIR)/$(TARGET): $(OBJECTS)
+$(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	@echo "Linking complete!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cc
 	@mkdir -p $(OBJDIR) $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-	@echo "Compiled "$<" successfully!"
+	@echo -e "Compiled "$<" successfully!\n"
 
 format: $(SOURCES)
 	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
@@ -36,6 +36,6 @@ clean:
 
 .PHONY: remove
 remove: clean
-	@$(rm) $(BINDIR)/$(TARGET) $(OBJDIR)/*
+	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
 	@echo "Executable removed!"
 
