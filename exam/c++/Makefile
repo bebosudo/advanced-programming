@@ -18,7 +18,7 @@ INCLUDES   = $(wildcard $(SRCDIR)/*.h)
 OBJECTS    = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 rm         = rm -f
 
-.PHONY: format clear_screen tests extend_cflags
+.PHONY: format clear_screen test tests extend_cflags valgrind_test
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -33,7 +33,7 @@ format: $(SOURCES)
 	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
 	@echo "Formatting done!"
 
-test: $(BINDIR)/$(TARGET)
+valgrind_test: $(BINDIR)/$(TARGET)
 	valgrind ./$(BINDIR)/$(TARGET)
 
 .PHONY: clean
@@ -53,5 +53,6 @@ extend_cflags:
 	$(eval CFLAGS += $(DEBUG_MODE))
 
 # https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
+test: tests
 tests: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
 	@$(BINDIR)/$(TARGET)
