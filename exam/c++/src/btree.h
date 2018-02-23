@@ -72,6 +72,9 @@ class BTree<K, V, cmp>::Node {
             sub_nodes += right->traverse();
         return sub_nodes;
     };
+
+    // Comparison operator
+    bool operator^(Node &other) { return cmp()(this->key(), other.key()); };
 };
 
 //
