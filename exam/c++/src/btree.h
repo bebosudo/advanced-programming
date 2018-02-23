@@ -39,15 +39,18 @@ class BTree {
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
-   public:
-    K key;
-    V value;
+    std::pair<K, V> _pair;
     std::unique_ptr<BTree::Node> left, right;
 
-    Node(std::pair<K, V> pair) : key{pair.first}, value{pair.second} {};
+   public:
+    Node(std::pair<K, V> pair) : _pair{pair} {};
 
     void set_left(Node &child) { left = child; };
     void set_right(Node &child) { right = child; };
+    K key() { return _pair.first; }
+    V value() { return _pair.second; }
+    K get_key() { return key(); }
+    V get_value() { return value(); }
 };
 
 //
@@ -80,20 +83,21 @@ bool BTree<K, V, cmp>::insert(K &key, V &value) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
-    Node *father, *child{new Node(pair)};
+    // Node *father, *child{new Node(pair)};
 
-    std::cout << "2insert: " << pair.first << ": " << pair.second << std::endl;
-    std::cout << "3insert: " << child->key << ": " << child->value << std::endl;
+    // std::cout << "2insert: " << pair.first << ": " << pair.second << std::endl;
+    // std::cout << "3insert: " << child->key() << ": " << child->value() << std::endl;
 
-    if (root) {
-        root = std::unique_ptr<Node>(child);
-    } else {
-        //father = root.get();
-        //while (!father->left) father = father->left.get();
-        //father->set_left(child);
-    }
-    father = root.get();
-    std::cout << "Content added:" << father->key << ": " << father->value << std::endl;
+    // if (root) {
+    //     root = std::unique_ptr<Node>(child);
+    // } else {
+    //     // father = root.get();
+    //     // while (!father->left) father = father->left.get();
+    //     // father->set_left(child);
+    // }
+    // father = root.get();
+    // std::cout << "Content added:" << father->key() << ": " << father->value() << std::endl;
+    root = std::unique_ptr<Node>(new Node(pair));
     _size++;
     return true;
 }
