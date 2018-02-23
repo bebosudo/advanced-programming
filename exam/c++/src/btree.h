@@ -120,6 +120,7 @@ bool BTree<K, V, cmp>::insert(K &key, V &value) {
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
     Node *tmp_father, *tmp_child{ new Node(pair) };
+    bool has_child{true};
     
     // Basic case, the tree is empty, so the new pair becomes the root object.
     if (!root) {
@@ -129,11 +130,23 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
     } else {
         tmp_father = root.get();
         
-        // We reach the last valid node
-        // NOTE: Dumb version, just as proof of concept
-        while(tmp_father->left) tmp_father = tmp_father->left.get();
-        
-        tmp_father->left = std::unique_ptr<Node>(tmp_child);
+        // Look for the last node to whom attach the child
+        while(has_child)
+            if ((*tmp_father) ^ (*tmp_child)) {
+                has_child = (bool)tmp_father->left;
+                // Go left if the child should be on this side (comparison true)
+                if (has_child) tmp_father = tmp_father->left.get();
+            } else {
+                has_child = (bool)tmp_father->right;
+                // Go right if the child should be on this side (comparison false)
+                if (has_child) tmp_father = tmp_father->right.get();
+            }
+
+        // Place the node according to the comparison
+        if ((*tmp_father) ^ (*tmp_child))
+            tmp_father->left = std::unique_ptr<Node>(tmp_child);
+        else
+            tmp_father->right = std::unique_ptr<Node>(tmp_child);
     }
 
     _size++;
