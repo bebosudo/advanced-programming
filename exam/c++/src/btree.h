@@ -42,6 +42,7 @@ class BTree {
     Iterator find(K key);
 
     unsigned int size() { return _size; };
+    unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
 
 #ifdef DEBUG
     Node *get_root() { return root.get(); }
@@ -62,6 +63,15 @@ class BTree<K, V, cmp>::Node {
     V value() { return _pair.second; }
     K get_key() { return key(); }
     V get_value() { return value(); }
+    unsigned int traverse() {
+        unsigned int sub_nodes = 1;
+
+        if (left)
+            sub_nodes += left->traverse();
+        if (right)
+            sub_nodes += right->traverse();
+        return sub_nodes;
+    };
 };
 
 //
@@ -75,6 +85,7 @@ class BTree<K, V, cmp>::Node {
 //
 //
 // --------------------------------------------------------
+//
 //
 //
 //
@@ -113,7 +124,8 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
     }
 
     // otherwise, we must traverse the tree and find where to place the new node.
-    // TODO: when there will be a find method, use that to find the correct place to place the node.
+    // TODO: when there will be a find method, use that to find the correct place to place the
+    // node.
     Node *temp_iter = root.get();
     bool go_left = _go_left_direction(temp_iter->key(), pair.first);
 
