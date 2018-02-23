@@ -72,6 +72,9 @@ class BTree<K, V, cmp>::Node {
             sub_nodes += right->traverse();
         return sub_nodes;
     };
+
+    // Comparison operator
+    bool operator^(Node &other) { return cmp()(this->key(), other.key()); };
 };
 
 //
@@ -116,35 +119,34 @@ bool BTree<K, V, cmp>::insert(K &key, V &value) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
+    Node *tmp_father, *tmp_child{ new Node(pair) };
+    bool has_child{true};
+    
     // Basic case, the tree is empty, so the new pair becomes the root object.
     if (!root) {
-        root = std::unique_ptr<Node>(new Node(pair));
-        _size++;
-        return true;
-    }
+        root = std::unique_ptr<Node>(tmp_child);
 
     // otherwise, we must traverse the tree and find where to place the new node.
-    // TODO: when there will be a find method, use that to find the correct place to place the
-    // node.
-    Node *temp_iter = root.get();
-    bool go_left = _go_left_direction(temp_iter->key(), pair.first);
-
-    while ((go_left and temp_iter->left) or (!go_left and temp_iter->right)) {
-        if (go_left) {
-            temp_iter = temp_iter->left.get();
-        } else {
-            temp_iter = temp_iter->right.get();
-        }
-
-        go_left = _go_left_direction(temp_iter->key(), pair.first);
-    }
-
-    // Now we reached the bottom part of the three, following one of the branches.
-    // `temp_iter` is now a pointer to the last valid node.
-    if (go_left) {
-        temp_iter->left = std::unique_ptr<Node>(new Node(pair));
     } else {
-        temp_iter->right = std::unique_ptr<Node>(new Node(pair));
+        tmp_father = root.get();
+        
+        // Look for the last node to whom attach the child
+        while(has_child)
+            if ((*tmp_father) ^ (*tmp_child)) {
+                has_child = (bool)tmp_father->left;
+                // Go left if the child should be on this side (comparison true)
+                if (has_child) tmp_father = tmp_father->left.get();
+            } else {
+                has_child = (bool)tmp_father->right;
+                // Go right if the child should be on this side (comparison false)
+                if (has_child) tmp_father = tmp_father->right.get();
+            }
+
+        // Place the node according to the comparison
+        if ((*tmp_father) ^ (*tmp_child))
+            tmp_father->left = std::unique_ptr<Node>(tmp_child);
+        else
+            tmp_father->right = std::unique_ptr<Node>(tmp_child);
     }
 
     _size++;
