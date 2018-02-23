@@ -29,6 +29,9 @@ format: $(SOURCES)
 	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
 	@echo "Formatting done!"
 
+test: $(BINDIR)/$(TARGET)
+	valgrind ./$(BINDIR)/$(TARGET)
+
 .PHONY: clean
 clean:
 	@$(rm) $(OBJECTS)
