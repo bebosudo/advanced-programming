@@ -74,12 +74,26 @@ class BTree<K, V, cmp>::Node {
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(K &key, V &value) {
     std::pair<K, V> pair = std::make_pair(key, value);
+    std::cout << "1insert: " << key << ": " << value << std::endl;
     return insert(pair);
 }
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
-    root = std::unique_ptr<Node>(new Node(pair));
+    Node *father, *child{new Node(pair)};
+
+    std::cout << "2insert: " << pair.first << ": " << pair.second << std::endl;
+    std::cout << "3insert: " << child->key << ": " << child->value << std::endl;
+
+    if (root) {
+        root = std::unique_ptr<Node>(child);
+    } else {
+        //father = root.get();
+        //while (!father->left) father = father->left.get();
+        //father->set_left(child);
+    }
+    father = root.get();
+    std::cout << "Content added:" << father->key << ": " << father->value << std::endl;
     _size++;
     return true;
 }
