@@ -18,7 +18,7 @@ rm       = rm -f
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
-	@echo "Linking complete!"
+	@echo -e "Linking complete!\n"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cc $(INCLUDES)
 	@mkdir -p $(OBJDIR) $(BINDIR)
