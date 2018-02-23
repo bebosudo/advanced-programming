@@ -17,7 +17,7 @@ INCLUDES   = $(wildcard $(SRCDIR)/*.h)
 OBJECTS    = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 rm         = rm -f
 
-.PHONY: format extend_cflags clear_screen tests CFLAGS
+.PHONY: format clear_screen tests
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -45,10 +45,12 @@ remove: clean
 	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
 	@echo "Executable removed!"
 
-extend_cflags: CFLAGS += $(DEBUG)
-
 clear_screen:
 	clear
 
-# https://stackoverflow.com/a/3267187/
-tests: clean extend_cflags clear_screen $(BINDIR)/$(TARGET)
+# https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
+tests: clean clear_screen
+tests: CFLAGS += $(DEBUG_MODE)
+tests: $(BINDIR)/$(TARGET)
+	@$(BINDIR)/$(TARGET)
+
