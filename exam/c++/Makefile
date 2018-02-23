@@ -1,12 +1,13 @@
 TARGET     = btree.x
 
 CC         = g++
+GENERIC_F  = -Wall -Wextra -I. -Idoctest/doctest/
 
-CFLAGS     = -O0 -std=c++11 -Wall -Wextra -I. -Idoctest/doctest/
+CFLAGS     = -O0 -std=c++11 $(GENERIC_F)
 DEBUG_MODE = -DDEBUG
 
 LINKER     = g++
-LFLAGS     = -Wall -I. -lm
+LFLAGS     = $(GENERIC_F) -lm
 
 SRCDIR     = src
 OBJDIR     = build
@@ -17,7 +18,7 @@ INCLUDES   = $(wildcard $(SRCDIR)/*.h)
 OBJECTS    = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 rm         = rm -f
 
-.PHONY: format clear_screen tests
+.PHONY: format clear_screen tests extend_cflags
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -42,15 +43,15 @@ clean:
 
 .PHONY: remove
 remove: clean
-	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
+	@$(rm) $(BINDIR)/$(TARGET)
 	@echo "Executable removed!"
 
 clear_screen:
-	clear
+	@clear
+
+extend_cflags:
+	$(eval CFLAGS += $(DEBUG_MODE))
 
 # https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
-tests: clean clear_screen
-tests: CFLAGS += $(DEBUG_MODE)
-tests: $(BINDIR)/$(TARGET)
+tests: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
 	@$(BINDIR)/$(TARGET)
-
