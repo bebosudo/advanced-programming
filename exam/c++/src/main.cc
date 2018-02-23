@@ -26,7 +26,7 @@ TEST_CASE(
     REQUIRE(tree.get_root()->key() == key);
 #endif
 
-    SUBCASE("test more insertions") {
+    SUBCASE("test more insertions increase key") {
         key++;
         tree.insert(key, value);
 
@@ -44,5 +44,17 @@ TEST_CASE(
         std::cout << "right is set? " << (bool)tree.get_root()->right << std::endl;
         CHECK(tree.get_root()->right->key() == key);
 #endif
+    }
+
+    SUBCASE("test more insertions decrease key") {
+        key--;
+        tree.insert(key, value);
+        CHECK(tree.size() == 2);
+        CHECK(tree.traversal_size() == 2);
+
+        key--;
+        tree.insert(key, value);
+        CHECK(tree.size() == 3);
+        CHECK(tree.traversal_size() == 3);
     }
 }
