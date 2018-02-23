@@ -1,20 +1,23 @@
-TARGET   = btree.x
+TARGET     = btree.x
 
-CC       = g++
-CFLAGS   = -O0 -std=c++11 -Wall -Wextra -I. -Idoctest/doctest/
+CC         = g++
 
-LINKER   = g++
-LFLAGS   = -Wall -I. -lm
+CFLAGS     = -O0 -std=c++11 -Wall -Wextra -I. -Idoctest/doctest/
+DEBUG_MODE = -DDEBUG
 
-SRCDIR   = src
-OBJDIR   = build
-BINDIR   = bin
+LINKER     = g++
+LFLAGS     = -Wall -I. -lm
 
-SOURCES  = $(wildcard $(SRCDIR)/*.cc)
-INCLUDES = $(wildcard $(SRCDIR)/*.h)
-OBJECTS  = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
-rm       = rm -f
+SRCDIR     = src
+OBJDIR     = build
+BINDIR     = bin
 
+SOURCES    = $(wildcard $(SRCDIR)/*.cc)
+INCLUDES   = $(wildcard $(SRCDIR)/*.h)
+OBJECTS    = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
+rm         = rm -f
+
+.PHONY: format extend_cflags clear_screen tests CFLAGS
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -42,3 +45,10 @@ remove: clean
 	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
 	@echo "Executable removed!"
 
+extend_cflags: CFLAGS += $(DEBUG)
+
+clear_screen:
+	clear
+
+# https://stackoverflow.com/a/3267187/
+tests: clean extend_cflags clear_screen $(BINDIR)/$(TARGET)
