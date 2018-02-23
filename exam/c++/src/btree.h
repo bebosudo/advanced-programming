@@ -116,35 +116,21 @@ bool BTree<K, V, cmp>::insert(K &key, V &value) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
+    Node *tmp_father, *tmp_child{ new Node(pair) };
+    
     // Basic case, the tree is empty, so the new pair becomes the root object.
     if (!root) {
-        root = std::unique_ptr<Node>(new Node(pair));
-        _size++;
-        return true;
-    }
+        root = std::unique_ptr<Node>(tmp_child);
 
     // otherwise, we must traverse the tree and find where to place the new node.
-    // TODO: when there will be a find method, use that to find the correct place to place the
-    // node.
-    Node *temp_iter = root.get();
-    bool go_left = _go_left_direction(temp_iter->key(), pair.first);
-
-    while ((go_left and temp_iter->left) or (!go_left and temp_iter->right)) {
-        if (go_left) {
-            temp_iter = temp_iter->left.get();
-        } else {
-            temp_iter = temp_iter->right.get();
-        }
-
-        go_left = _go_left_direction(temp_iter->key(), pair.first);
-    }
-
-    // Now we reached the bottom part of the three, following one of the branches.
-    // `temp_iter` is now a pointer to the last valid node.
-    if (go_left) {
-        temp_iter->left = std::unique_ptr<Node>(new Node(pair));
     } else {
-        temp_iter->right = std::unique_ptr<Node>(new Node(pair));
+        tmp_father = root.get();
+        
+        // We reach the last valid node
+        // NOTE: Dumb version, just as proof of concept
+        while(tmp_father->left) tmp_father = tmp_father->left.get();
+        
+        tmp_father->left = std::unique_ptr<Node>(tmp_child);
     }
 
     _size++;
