@@ -1,9 +1,15 @@
 # Exam Advanced Programming
 ### How to submit
 The work is collaborative. Groups of 2 students are recommended but you can choose. Make sure that the work (and the lines of code written) is evenly distributed.
+
+~~`git log --author='Alberto' --stat  |  awk '/insertions/ {i+=$4} ; /deletions/ {d+=$6} END{print i-d}'`~~
+
+**Edit**: calculate the edits from the date we started working on the project.
 ```
-git log --author='Alberto' --stat  |  awk '/insertions/ {i+=$4} ; /deletions/ {d+=$6} END{print i-d}'
+$ git log --author='Chiusole' --since="2018-02-21" --stat |  awk '/insertions/ {i+=$4} ; /deletions/ {d+=$6} END{print i-d}'
+$ git log --author='Francesco' --since="2018-02-21" --stat |  awk '/insertions/ {i+=$4} ; /deletions/ {d+=$6} END{print i-d}'
 ```
+
 
 Work with `git` in one ad-hoc repository that you create for this exam. Use branches and pull/merge requests. If you will, you can have a private repository for free in gitlab.
 
