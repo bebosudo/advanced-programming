@@ -3,13 +3,20 @@
 #include <utility>
 #include <iostream>
 
-template <typename K, typename V, typename cmp>
+// #define DEBUG
+
+template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
    private:
     class Node;
 
     std::unique_ptr<Node> root;
     unsigned int _size{0};
+
+    // `cmp` is a templated class, so we need to instantiate it before we can use it.
+    std::function<bool(K, K)> comparator = cmp();
+
+    bool _go_left_direction(K key_node_on_tree, K new_node_key);
 
    public:
     BTree(){};
@@ -35,14 +42,18 @@ class BTree {
     Iterator find(K key);
 
     unsigned int size() { return _size; };
+
+#ifdef DEBUG
+    Node *get_root() { return root.get(); }
+#endif
 };
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
+   public:
     std::pair<K, V> _pair;
     std::unique_ptr<BTree::Node> left, right;
 
-   public:
     Node(std::pair<K, V> pair) : _pair{pair} {};
 
     void set_left(Node &child) { left = child; };
@@ -75,29 +86,55 @@ class BTree<K, V, cmp>::Node {
 //
 
 template <typename K, typename V, typename cmp>
+bool BTree<K, V, cmp>::_go_left_direction(K key_node_on_tree, K new_node_key) {
+    // Here we decide where to move according to the comparator; to change the overall tree
+    // ordering, we could just negate the comparator here once for the whole tree.
+    // E.g. we receive a key_node_on_tree = 42 and a new_node_key = 43, so the default less operator
+    // returns true, because 42<43, but we flip the result because we want to go right if the new
+    // key is larger than the existing. At the end of the day, this is done only to improve the
+    // visual structure for us humans, computers don't care if our tree is ordered in the inverse
+    // way.
+    return !comparator(key_node_on_tree, new_node_key);
+}
+
+template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(K &key, V &value) {
     std::pair<K, V> pair = std::make_pair(key, value);
-    std::cout << "1insert: " << key << ": " << value << std::endl;
     return insert(pair);
 }
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
-    // Node *father, *child{new Node(pair)};
+    // Basic case, the tree is empty, so the new pair becomes the root object.
+    if (!root) {
+        root = std::unique_ptr<Node>(new Node(pair));
+        _size++;
+        return true;
+    }
 
-    // std::cout << "2insert: " << pair.first << ": " << pair.second << std::endl;
-    // std::cout << "3insert: " << child->key() << ": " << child->value() << std::endl;
+    // otherwise, we must traverse the tree and find where to place the new node.
+    // TODO: when there will be a find method, use that to find the correct place to place the node.
+    Node *temp_iter = root.get();
+    bool go_left = _go_left_direction(temp_iter->key(), pair.first);
 
-    // if (root) {
-    //     root = std::unique_ptr<Node>(child);
-    // } else {
-    //     // father = root.get();
-    //     // while (!father->left) father = father->left.get();
-    //     // father->set_left(child);
-    // }
-    // father = root.get();
-    // std::cout << "Content added:" << father->key() << ": " << father->value() << std::endl;
-    root = std::unique_ptr<Node>(new Node(pair));
+    while ((go_left and temp_iter->left) or (!go_left and temp_iter->right)) {
+        if (go_left) {
+            temp_iter = temp_iter->left.get();
+        } else {
+            temp_iter = temp_iter->right.get();
+        }
+
+        go_left = _go_left_direction(temp_iter->key(), pair.first);
+    }
+
+    // Now we reached the bottom part of the three, following one of the branches.
+    // `temp_iter` is now a pointer to the last valid node.
+    if (go_left) {
+        temp_iter->left = std::unique_ptr<Node>(new Node(pair));
+    } else {
+        temp_iter->right = std::unique_ptr<Node>(new Node(pair));
+    }
+
     _size++;
     return true;
 }
