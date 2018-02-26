@@ -207,6 +207,13 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
 }
 
 template <typename K, typename V, typename cmp>
+bool BTree<K, V, cmp>::clear() {
+    root.reset();
+    _size = 0;
+    return true;
+}
+
+template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
     Node *temp_iter = _traverse_to_closest(key);
     DEBUG_MSG("reached node temp_iter {" << temp_iter->key() << ": " << temp_iter->val() << "}");
