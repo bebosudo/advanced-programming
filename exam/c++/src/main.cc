@@ -3,12 +3,12 @@
 #include "doctest.h"
 #include <functional>  // std::less
 
-#ifdef DEBUG
-
 // In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
 // If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the tests continue to
 // execute until the whole test suite is done, and then doctest graciously stops, reporting all the
 // CHECKs that failed.
+
+#ifdef DEBUG
 
 TEST_CASE("insert method and size+traversal_size methods") {
     BTree<int, float, std::less<int>> tree;
@@ -59,11 +59,16 @@ TEST_CASE("insert method and size+traversal_size methods") {
         CHECK(tree.size() == 3);
         CHECK(tree.traversal_size() == 3);
     }
+
+    SUBCASE("same key insertion") {
+        // Inserting the same key twice should keep the three height fixed.
+        tree.insert(key, value);
+        CHECK(tree.size() == 1);
+        CHECK(tree.traversal_size() == 1);
+    }
 }
 
-TEST_CASE(
-    "test the btree implementation of the _find private method (exposed by "
-    "`_find_public` when in debug mode)") {
+TEST_CASE("test the _find private method (exposed by `_find_public` when in debug mode)") {
     DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
 
