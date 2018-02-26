@@ -137,6 +137,7 @@ bool BTree<K, V, cmp>::_go_left_direction(K key_node_on_tree, K new_node_key) {
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     Node *temp_iter = root.get();
+
     if (temp_iter->key() == key)
         return temp_iter;
     bool go_left = _go_left_direction(temp_iter->key(), key);
@@ -184,11 +185,16 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
     // otherwise, we must traverse the tree and find where to place the new node.
     Node *temp_iter = _traverse_to_closest(pair.first);
 
-    DEBUG_MSG("reached node: {" << temp_iter->key() << ": " << temp_iter->val() << "}");
+    DEBUG_MSG("reached node: {" << temp_iter->key() << ": " << temp_iter->val()
+                                << "}. gonna insert new pair {" << pair.first << ": " << pair.second
+                                << "}");
 
     // Now we reached the bottom part of the three, following one of the branches.
     // `temp_iter` is now a pointer to the last valid node.
-    if (_go_left_direction(temp_iter->key(), pair.first)) {
+    if (temp_iter->key() == pair.first) {
+        temp_iter->_pair = pair;
+        return true;
+    } else if (_go_left_direction(temp_iter->key(), pair.first)) {
         DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a left");
         temp_iter->left = std::unique_ptr<Node>(new Node(pair));
     } else {
