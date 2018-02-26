@@ -68,6 +68,18 @@ TEST_CASE("insert method and size+traversal_size methods") {
     }
 }
 
+void tree_keys(int *keys_array) {
+    for (int i = 0; i < 20; ++i) {
+        if (i < 6) {
+            keys_array[i] = 30 + i;
+        } else if (i < 12) {
+            keys_array[i] = 40 + i - 6;
+        } else {
+            keys_array[i] = 20 + i - 12;
+        }
+    }
+}
+
 TEST_CASE("test the _find private method (exposed by `_find_public` when in debug mode)") {
     DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
@@ -76,17 +88,10 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     REQUIRE(tree.traversal_size() == 0);
 
     int keys[20];
+    tree_keys(keys);
     float value = 3.14;
 
     for (int i = 0; i < 20; ++i) {
-        if (i < 6) {
-            keys[i] = 30 + i;
-        } else if (i < 12) {
-            keys[i] = 40 + i - 6;
-        } else {
-            keys[i] = 20 + i - 12;
-        }
-
         tree.insert(keys[i], value);
         REQUIRE(tree._find_public(keys[i])->_pair.second == value);
     }
@@ -102,4 +107,27 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
 }
+
+TEST_CASE("test iterator implementation") {
+    BTree<int, float, std::less<int>> tree;
+
+    int keys[20];
+    tree_keys(keys);
+    float value = 3.14;
+
+    int lowest_value = keys[0];
+    for (int i = 0; i < 20; ++i) {
+        if (keys[i] < lowest_value)
+            lowest_value = keys[i];
+
+        tree.insert(keys[i], value);
+    }
+
+    int last_element_seen = lowest_value;
+    for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end(); ++it) {
+        REQUIRE(std::less<int>()(last_element_seen, it.val()));
+        last_element_seen = it.val();
+    }
+}
+
 #endif

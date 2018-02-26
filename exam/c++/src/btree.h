@@ -1,7 +1,8 @@
 #include <functional>  // std::less
+#include <stack>       // std::stack
 #include <memory>
-#include <utility>
 #include <iostream>
+#include <utility>
 
 // #define VERBOSE
 
@@ -30,7 +31,7 @@ class BTree {
 
     bool _go_left_direction(K key_node_on_tree, K new_node_key);
 
-    Node *_traverse_to_closest(K key);
+    Node *_traverse_to_closest(K key, std::unique_ptr<std::stack<Node *>> parents_stack = nullptr);
 
     // For our convenience, we create a find version that returns a Node*, which can be used in
     // many other methods.
@@ -62,10 +63,10 @@ class BTree {
     unsigned int size() { return _size; };
     unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
 
+#ifdef DEBUG
     // Public version that envelops the private _find method: only for internal use, to be dropped.
     Node *_find_public(K key) { return _find(key); }
 
-#ifdef DEBUG
     Node *get_root() { return root.get(); }
 
 #endif
@@ -96,6 +97,34 @@ class BTree<K, V, cmp>::Node {
 
         return sub_nodes;
     };
+};
+
+template <typename K, typename V, typename cmp>
+class BTree<K, V, cmp>::Iterator {
+    Node *_current;
+    std::stack<Node *> _parents;
+
+    // Given a certain key, return a pointer to a stack containing its parents.
+    std::unique_ptr<std::stack<Node *>> _extract_parents(K key);
+
+   public:
+    Iterator(K key);
+    // V &operator*() const { return _current->val(); }
+    K &key() const { return _current->key(); }
+    V val() const { return _current->val(); }
+
+    // // ++it
+    // Iterator &operator++() {}
+
+    // // it++
+    // Iterator operator++(int) {
+    //     Iterator it{_current};
+    //     ++(*this);
+    //     return it;
+    // }
+
+    bool operator==(const Iterator &other) { return _current == other._current; }
+    bool operator!=(const Iterator &other) { return !(*this == other); }
 };
 
 //
@@ -135,21 +164,26 @@ bool BTree<K, V, cmp>::_go_left_direction(K key_node_on_tree, K new_node_key) {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
+typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(
+    K key,
+    std::unique_ptr<std::stack<Node *>> parents_stack) {
+    //
+
     Node *temp_iter = root.get();
 
     if (temp_iter->key() == key)
         return temp_iter;
+
     bool go_left = _go_left_direction(temp_iter->key(), key);
 
-    DEBUG_MSG(std::boolalpha);
-    DEBUG_MSG("the root node has key: " << temp_iter->key() << " and the search key is " << key);
-    DEBUG_MSG("given the key: " << key << ", Imma look for the closest node");
-    DEBUG_MSG("go_left is " << go_left << ", then Imma go " << (go_left ? "left" : "right"));
-
     while ((go_left and temp_iter->left) or (!go_left and temp_iter->right)) {
+        // If a stack is given, populate it with the parents traversed until reaching the key.
+        if (parents_stack != nullptr)
+            parents_stack->push(temp_iter);
+
         if (go_left) {
             DEBUG_MSG("since go_left is true, Imma go left");
+
             temp_iter = temp_iter->left.get();
         } else {
             DEBUG_MSG("since go_left is false, Imma go right");
@@ -218,4 +252,12 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
         DEBUG_MSG("no node exists with the given key, returning a nullptr");
         return nullptr;
     }
+}
+
+template <typename K, typename V, typename cmp>
+std::unique_ptr<std::stack<typename BTree<K, V, cmp>::Node *>>
+BTree<K, V, cmp>::Iterator::_extract_parents(K key) {
+    std::unique_ptr<std::stack<Node *>> parents_stack{new std::stack<Node *>};
+    // while
+    //     stack
 }
