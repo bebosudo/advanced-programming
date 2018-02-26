@@ -55,4 +55,4 @@ extend_cflags:
 # https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
 test: tests
 tests: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
-	@$(BINDIR)/$(TARGET)
+	$(BINDIR)/$(TARGET) $(ARGS)

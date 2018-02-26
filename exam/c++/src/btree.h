@@ -10,6 +10,7 @@
     do {                               \
         std::cout << str << std::endl; \
     } while (false)
+
 #else
 #define DEBUG_MSG(str) \
     do {               \
@@ -136,9 +137,12 @@ bool BTree<K, V, cmp>::_go_left_direction(K key_node_on_tree, K new_node_key) {
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     Node *temp_iter = root.get();
+    if (temp_iter->key() == key)
+        return temp_iter;
     bool go_left = _go_left_direction(temp_iter->key(), key);
 
     DEBUG_MSG(std::boolalpha);
+    DEBUG_MSG("the root node has key: " << temp_iter->key() << " and the search key is " << key);
     DEBUG_MSG("given the key: " << key << ", Imma look for the closest node");
     DEBUG_MSG("go_left is " << go_left << ", then Imma go " << (go_left ? "left" : "right"));
 
@@ -150,6 +154,9 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
             DEBUG_MSG("since go_left is false, Imma go right");
             temp_iter = temp_iter->right.get();
         }
+
+        if (temp_iter->key() == key)
+            return temp_iter;
 
         go_left = _go_left_direction(temp_iter->key(), key);
     }
@@ -165,7 +172,7 @@ bool BTree<K, V, cmp>::insert(K &key, V &value) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
-    DEBUG_MSG("\ninserting new pair: {" << pair.first << ": " << pair.second << "}");
+    DEBUG_MSG("inserting new pair: {" << pair.first << ": " << pair.second << "}");
     // Basic case, the tree is empty, so the new pair becomes the root object.
     if (!root) {
         DEBUG_MSG("no need to go more down, inserting as new root");
@@ -176,6 +183,8 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
 
     // otherwise, we must traverse the tree and find where to place the new node.
     Node *temp_iter = _traverse_to_closest(pair.first);
+
+    DEBUG_MSG("reached node: {" << temp_iter->key() << ": " << temp_iter->val() << "}");
 
     // Now we reached the bottom part of the three, following one of the branches.
     // `temp_iter` is now a pointer to the last valid node.
@@ -195,6 +204,7 @@ template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
     Node *temp_iter = _traverse_to_closest(key);
     DEBUG_MSG("reached node temp_iter {" << temp_iter->key() << ": " << temp_iter->val() << "}");
+
     if (temp_iter->key() == key) {
         DEBUG_MSG("the node found has the same key we are searching for, returning it");
         return temp_iter;

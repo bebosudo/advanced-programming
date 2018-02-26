@@ -3,11 +3,14 @@
 #include "doctest.h"
 #include <functional>  // std::less
 
-// In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
-// If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the single unit tests
-// continues thw whole test suite, and then graciously stop reporting all the CHECKs that failed.
+#ifdef DEBUG
 
-TEST_CASE("testing the btree implementation of the insert method and size+traversal_size methods") {
+// In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
+// If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the tests continue to
+// execute until the whole test suite is done, and then doctest graciously stops, reporting all the
+// CHECKs that failed.
+
+TEST_CASE("insert method and size+traversal_size methods") {
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
@@ -21,13 +24,11 @@ TEST_CASE("testing the btree implementation of the insert method and size+traver
     REQUIRE(tree.traversal_size() == 1);
 
     DEBUG_MSG(std::boolalpha);
-    DEBUG_MSG("left is set? " << (bool)tree.get_root()->left);
-    DEBUG_MSG("right is set? " << (bool)tree.get_root()->right);
+    DEBUG_MSG("is left set? " << (bool)tree.get_root()->left);
+    DEBUG_MSG("is right set? " << (bool)tree.get_root()->right);
 
-#ifdef DEBUG
     DEBUG_MSG("root key=" << tree.get_root()->key() << ", value=" << tree.get_root()->value());
     REQUIRE(tree.get_root()->key() == key);
-#endif
 
     SUBCASE("test more insertions increase key") {
         key++;
@@ -42,11 +43,9 @@ TEST_CASE("testing the btree implementation of the insert method and size+traver
         CHECK(tree.size() == 3);
         CHECK(tree.traversal_size() == 3);
 
-#ifdef DEBUG
-        DEBUG_MSG("left is set? " << (bool)tree.get_root()->left << std::endl);
-        DEBUG_MSG("right is set? " << (bool)tree.get_root()->right << std::endl);
+        DEBUG_MSG("is left set? " << (bool)tree.get_root()->left << std::endl);
+        DEBUG_MSG("is right set? " << (bool)tree.get_root()->right << std::endl);
         CHECK(tree.get_root()->right->right->key() == key);
-#endif
     }
 
     SUBCASE("test more insertions decrease key") {
@@ -62,61 +61,40 @@ TEST_CASE("testing the btree implementation of the insert method and size+traver
     }
 }
 
-TEST_CASE("testing the btree implementation of the insert method and size+traversal_size methods") {
-    DEBUG_MSG("\n\n\n\n\n\n\n");
+TEST_CASE(
+    "test the btree implementation of the _find private method (exposed by "
+    "`_find_public` when in debug mode)") {
+    DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
     REQUIRE(tree.traversal_size() == 0);
 
-    int key = 42;
+    int keys[20];
     float value = 3.14;
 
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    REQUIRE(tree._find_public(key)->_pair.second == value);
+    for (int i = 0; i < 20; ++i) {
+        if (i < 6) {
+            keys[i] = 30 + i;
+        } else if (i < 12) {
+            keys[i] = 40 + i - 6;
+        } else {
+            keys[i] = 20 + i - 12;
+        }
 
-    key = 30;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    REQUIRE(tree._find_public(key)->_pair.second == value);
+        tree.insert(keys[i], value);
+        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+    }
 
-    key = 10;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
-    key++;
-    tree.insert(key, value);
+    // Retrieve all the past keys.
+    for (int i = 0; i < 20; ++i) {
+        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+    }
 
-    DEBUG_MSG(std::endl << std::endl);
-    REQUIRE(tree._find_public(key)->_pair.second == value);
+    // Test the root retrieval.
+    REQUIRE(tree._find_public(keys[0])->_pair.second == tree.get_root()->value());
 
-    REQUIRE(tree._find_public(34)->_pair.second == value);
-
-    // TOFIX: Bugged
-    // #ifdef DEBUG
-    //     // Test the root retrieval.
-    //     std::cout << tree._find_public(42)->_pair.second;
-    //     std::cout << tree.get_root()->value();
-    //     REQUIRE(tree._find_public(42)->_pair.second == tree.get_root()->value());
-    // #endif
-
-    // Search for a not existing node should return a nullptr.
+    // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
 }
+#endif
