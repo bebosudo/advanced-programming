@@ -10,7 +10,7 @@
 
 #ifdef DEBUG
 
-TEST_CASE("insert method and size+traversal_size methods") {
+TEST_CASE("insert, size+traversal_size and clear methods") {
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
@@ -65,6 +65,16 @@ TEST_CASE("insert method and size+traversal_size methods") {
         tree.insert(key, value);
         CHECK(tree.size() == 1);
         CHECK(tree.traversal_size() == 1);
+    }
+
+    SUBCASE("tree clearing") {
+        for (int i = 0; i < 10; i++) {
+            tree.insert(key, value);
+            key++;
+        }
+        CHECK(tree.size() == 10);
+        tree.clear();
+        CHECK(tree.size() == 0);
     }
 }
 
