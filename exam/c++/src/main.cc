@@ -123,10 +123,17 @@ TEST_CASE("test iterator implementation") {
         tree.insert(keys[i], value);
     }
 
-    int last_element_seen = lowest_value;
-    for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end(); ++it) {
-        REQUIRE(std::less<int>()(last_element_seen, it.val()));
-        last_element_seen = it.val();
+    SUBCASE("test normal iteration") {
+        int last_element_seen = lowest_value;
+        for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end();
+             ++it) {
+            CHECK(std::less<int>()(last_element_seen, it.val()));
+            last_element_seen = it.val();
+        }
+    }
+    SUBCASE("test iteration on missing key") {
+        CHECK_THROWS_AS(BTree<int, float, std::less<int>>::Iterator it = tree.begin(99999),
+                        IteratorInit_key_not_found);
     }
 }
 

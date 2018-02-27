@@ -18,6 +18,10 @@
     } while (false)
 #endif
 
+struct IteratorInit_key_not_found {
+    std::string message;
+};
+
 template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
    private:
@@ -124,7 +128,7 @@ class BTree<K, V, cmp>::Iterator {
     // }
 
     bool operator==(const Iterator &other) { return _current == other._current; }
-    bool operator!=(const Iterator &other) { return !(*this == other); }
+    bool operator!=(const Iterator &other) { return !(this == other); }
 };
 
 //
@@ -190,6 +194,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(
             temp_iter = temp_iter->right.get();
         }
 
+        // If we reached the exact node that we were searching for, return it.
         if (temp_iter->key() == key)
             return temp_iter;
 
@@ -258,6 +263,12 @@ template <typename K, typename V, typename cmp>
 std::unique_ptr<std::stack<typename BTree<K, V, cmp>::Node *>>
 BTree<K, V, cmp>::Iterator::_extract_parents(K key) {
     std::unique_ptr<std::stack<Node *>> parents_stack{new std::stack<Node *>};
+
+    Node *node_searched = _traverse_to_closest(key);
+    if (node_searched->key() != key)
+        throw IteratorInit_key_not_found{"Key " + std::to_string(key) +
+                                         " not found when creating the iterator."};
+
     // while
     //     stack
 }
