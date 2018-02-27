@@ -187,10 +187,13 @@ template <typename K, typename V, typename cmp>
 unsigned int BTree<K, V, cmp>::height(Node *root) {
     unsigned int left_children, right_children;
 
-    left_children = root->left ? height(root->left.get()) : 0;
-    right_children = root->right ? height(root->right.get()) : 0;
+    if (root) {
+        left_children = root->left ? height(root->left.get()) : 0;
+        right_children = root->right ? height(root->right.get()) : 0;
 
-    return std::max(left_children, right_children) + 1;
+        return std::max(left_children, right_children) + 1;
+    } else
+        return 0;
 }
 
 template <typename K, typename V, typename cmp>
