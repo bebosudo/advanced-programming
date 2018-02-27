@@ -2,6 +2,7 @@
 #include <memory>
 #include <utility>
 #include <iostream>
+#include <cmath>
 
 // #define VERBOSE
 
@@ -46,6 +47,10 @@ class BTree {
     void print();
     bool clear();
     void balance();
+
+    unsigned int height();
+    unsigned int height(Node *root);
+    bool is_balanced();
 
     std::pair<K, V> erase(K key);
 
@@ -163,6 +168,29 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     }
 
     return temp_iter;
+}
+
+template <typename K, typename V, typename cmp>
+bool BTree<K, V, cmp>::is_balanced() {
+    if (height() <= std::sqrt(_size) + 1)
+        return true;
+    else
+        return false;
+}
+
+template <typename K, typename V, typename cmp>
+unsigned int BTree<K, V, cmp>::height() {
+    return height(root.get());
+}
+
+template <typename K, typename V, typename cmp>
+unsigned int BTree<K, V, cmp>::height(Node *root) {
+    unsigned int left_children, right_children;
+
+    left_children = root->left ? height(root->left.get()) : 0;
+    right_children = root->right ? height(root->right.get()) : 0;
+
+    return std::max(left_children, right_children) + 1;
 }
 
 template <typename K, typename V, typename cmp>
