@@ -135,6 +135,15 @@ TEST_CASE("tree balancing") {
     SUBCASE("check unbalancing") {
         CHECK(tree.height() == 12);
         REQUIRE(!tree.is_balanced());
+
+        key = 20;
+        for (int i = 0; i < 10; i++) {
+            tree.insert(key, value);
+            key++;
+        }
+
+        CHECK(tree.height() == 12);
+        REQUIRE(!tree.is_balanced());
     }
 }
 #endif
