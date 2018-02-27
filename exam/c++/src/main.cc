@@ -118,6 +118,7 @@ TEST_CASE("tree balancing") {
 
     REQUIRE(tree.size() == 0);
     REQUIRE(tree.traversal_size() == 0);
+    REQUIRE(tree.height() == 0);
 
     int key = 12;
     float value = 3.14;
