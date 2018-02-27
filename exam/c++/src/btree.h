@@ -208,8 +208,10 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::clear() {
-    root.reset();
-    _size = 0;
+    if (root) {
+        root.reset();
+        _size = 0;
+    }
     return true;
 }
 
