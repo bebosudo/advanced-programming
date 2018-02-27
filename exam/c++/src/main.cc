@@ -112,4 +112,28 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
 }
+
+TEST_CASE("tree balancing") {
+    BTree<int, float, std::less<int>> tree;
+
+    REQUIRE(tree.size() == 0);
+    REQUIRE(tree.traversal_size() == 0);
+
+    int key = 12;
+    float value = 3.14;
+
+    // Let's build an unbalanced tree
+    for (int i = 0; i < 12; i++) {
+        tree.insert(key, value);
+        key--;
+    }
+
+    REQUIRE(tree.size() == 12);
+    REQUIRE(tree.traversal_size() == 12);
+
+    SUBCASE("check unbalancing") {
+        CHECK(tree.height() == 12);
+        REQUIRE(!tree.is_balanced());
+    }
+}
 #endif
