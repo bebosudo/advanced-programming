@@ -120,19 +120,19 @@ TEST_CASE("tree balancing") {
     REQUIRE(tree.traversal_size() == 0);
     REQUIRE(tree.height() == 0);
 
-    int key = 12;
-    float value = 3.14;
-
-    // Let's build an unbalanced tree
-    for (int i = 0; i < 12; i++) {
-        tree.insert(key, value);
-        key--;
-    }
-
-    REQUIRE(tree.size() == 12);
-    REQUIRE(tree.traversal_size() == 12);
-
     SUBCASE("check unbalancing") {
+        int key = 12;
+        float value = 3.14;
+
+        // Let's build an unbalanced tree
+        for (int i = 0; i < 12; i++) {
+            tree.insert(key, value);
+            key--;
+        }
+        
+        REQUIRE(tree.size() == 12);
+        REQUIRE(tree.traversal_size() == 12);
+
         CHECK(tree.height() == 12);
         REQUIRE(!tree.is_balanced());
 
