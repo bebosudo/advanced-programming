@@ -57,34 +57,25 @@ class PostcardList(object):
     def number_of_postcards(self):
         return len(self._postcards)
 
-    def writeFile(self):
-        pst_list = self._get_postcard_list()
+    def write_file(self):
+        pst_list = self._get_postcards_list()
     
         with open(self._file, 'w') as f:
             for line in pst_list:
                 f.write(line)
 
-    def updateFile(self):
-        pst_list = self._get_postcard_list()
+    def update_file(self):
+        pst_list = self._get_postcards_list()
 
         with open(self._file, 'a') as f:
             for line in pst_list:
                 f.write(line)
 
-    def updateLists(self):
+    def update_lists(self):
         self.readFile(self._file)
         self.parsePostcards()
 
-    def parsePostcards(self, *args, **kwargs):
-        return self._parse_postcards(*args, **kwargs)
-
-    def readFile(self, *args, **kwargs):
-        return self.read_file(*args, **kwargs)
-
-    def getNumberOfPostcards(self):
-        return self.number_of_postcards
-
-    def getPostcardsByDateRange(self, date_range):
+    def get_postcards_by_date_range(self, date_range):
         start_date, end_date = date_range
 
         res = []
@@ -95,19 +86,19 @@ class PostcardList(object):
 
         return res
 
-    def getPostcardsBySender(self, sender):
+    def get_postcards_by_sender(self, sender):
         if sender in self._from:
             return [x for i, x in enumerate(self._postcards) if i in self._from[sender]]
         else:
             return []
 
-    def getPostcardsByReceiver(self, receiver):
+    def get_postcards_by_receiver(self, receiver):
         if receiver in self._to:
             return [x for i, x in enumerate(self._postcards) if i in self._to[receiver]]
         else:
             return []
 
-    def _get_postcard_list(self):
+    def _get_postcards_list(self):
         l = []
         template_str = "date:{_date}; from:{_from}; to:{_to};\n"
 
@@ -119,3 +110,37 @@ class PostcardList(object):
             l.append(template_str.format(_date=date_str, _from=from_str, _to=to_str))
 
         return l
+
+
+    """
+        Wrappers to the functions to meet the requirements and allowing
+        the methods above to comply with the PEP-8 coding style.
+    """
+
+    def parsePostcards(self, *args, **kwargs):
+        return self._parse_postcards(*args, **kwargs)
+
+    def readFile(self, *args, **kwargs):
+        return self.read_file(*args, **kwargs)
+
+    def getNumberOfPostcards(self):
+        return self.number_of_postcards
+
+    def writeFile(self):
+        return self.write_file()
+
+    def updateFile(self):
+        return self.update_file()
+
+    def updateLists(self):
+        return self.update_lists()
+
+    def getPostcardsByDateRange(self, *args, **kwargs):
+        return self.get_postcards_by_date_range(*args, **kwargs)
+
+    def getPostcardsBySender(self, *args, **kwargs):
+        return self.get_postcards_by_sender(*args, **kwargs)
+
+    def getPostcardsByReceiver(self, *args, **kwargs):
+        return self.get_postcards_by_receiver(*args, **kwargs)
+
