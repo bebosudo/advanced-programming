@@ -77,8 +77,8 @@ class Test(unittest.TestCase):
 
     def test_parse_file_throws_exception(self):
         self._PstLst[0]._postcards[0] = "Wrong format!!"
-        # with self.assertRaises(ValueError, msg="Postcard \d+ from file .*\s* has an unrecognized format.*"):
-        self._PstLst[0]._parse_postcards()
+        with self.assertRaises(ValueError, msg="Postcard \d+ from file .*\s* has an unrecognized format.*"):
+            self._PstLst[0]._parse_postcards()
 
     def test_check_getPostcardByDateRange(self):
         dr_test = []
