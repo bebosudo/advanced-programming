@@ -37,6 +37,8 @@ class BTree {
     // many other methods.
     Node *_find(K key);
 
+    unsigned int height(Node *root);
+
    public:
     BTree(){};
 
@@ -49,7 +51,6 @@ class BTree {
     void balance();
 
     unsigned int height();
-    unsigned int height(Node *root);
     bool is_balanced();
 
     std::pair<K, V> erase(K key);
