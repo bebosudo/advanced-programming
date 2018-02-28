@@ -23,9 +23,9 @@ class PostcardList(object):
                 _, from_str = from_raw.split("from:", 1)
                 _, to_str = to_raw.split("to:", 1)
             except ValueError as e:
-                print("Postcard {} from file {} has an unrecognized format, it should be "
-                      "`date:YYYY-MM-DD; from:sender; to:recipient`".format(postcard_idx,
-                                                                            self._file))
+                raise ValueError("Postcard {} from file {} has an unrecognized format, it should "
+                                 "be `date:YYYY-MM-DD; from:sender; to:recipient`.\n"
+                                 "Specific error: {}".format(postcard_idx, self._file, e))
 
             self._date[date_str].append(postcard_idx)
             self._from[from_str].append(postcard_idx)

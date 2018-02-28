@@ -67,13 +67,18 @@ class Test(unittest.TestCase):
                 raise Exception(attr + ' is missing')
 
     def test_read_file_dictionaries_construction(self):
-        self.assertEqual(self._PstLst[0]._from["Dewey"], [0, 2, 13])
-        self.assertEqual(self._PstLst[0]._from["Dopey"], [8, 9])
-        self.assertEqual(self._PstLst[0]._from["Scrooge"], [])
-        self.assertEqual(self._PstLst[0]._to["Grumpy"], [6, 10])
-        self.assertEqual(self._PstLst[0]._to["Bashful"], [])
+        self.assertListEqual(self._PstLst[0]._from["Dewey"], [0, 2, 13])
+        self.assertListEqual(self._PstLst[0]._from["Dopey"], [8, 9])
+        self.assertListEqual(self._PstLst[0]._from["Scrooge"], [])
+        self.assertListEqual(self._PstLst[0]._to["Grumpy"], [6, 10])
+        self.assertListEqual(self._PstLst[0]._to["Bashful"], [])
         for date, date_indices in self._PstLst[0]._date.items():
             self.assertEqual(len(date_indices), 1)
+
+    def test_parse_file_throws_exception(self):
+        self._PstLst[0]._postcards[0] = "Wrong format!!"
+        # with self.assertRaises(ValueError, msg="Postcard \d+ from file .*\s* has an unrecognized format.*"):
+        self._PstLst[0]._parse_postcards()
 
     def test_check_getPostcardByDateRange(self):
         dr_test = []
