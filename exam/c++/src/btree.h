@@ -25,10 +25,8 @@ class BTree {
     std::unique_ptr<Node> root;
     unsigned int _size{0};
 
-    // `cmp` is a templated class, so we need to instantiate it before we can use it.
-    std::function<bool(K, K)> comparator = cmp();
-
-    bool _go_left_direction(K key_node_on_tree, K new_node_key);
+    const cmp comparator;
+    bool _compare(const K &key1, const K &key2) const { return !comparator(key1, key2); }
 
     Node *_traverse_to_closest(K key);
 
@@ -37,7 +35,7 @@ class BTree {
     Node *_find(K key);
 
    public:
-    BTree(){};
+    BTree(cmp op = cmp{}) : comparator{op} {};
 
     // The first insert takes key and value as references; then we call the method insert(pair)
     // internally, so we copy the values only once when calling the second method.
@@ -50,8 +48,8 @@ class BTree {
     std::pair<K, V> erase(K key);
 
     class Iterator;
-    Iterator begin();
-    Iterator end();
+    Iterator begin() { return Iterator{root->get_leftmost()}; };
+    Iterator end() { return Iterator{nullptr}; };
 
     class ConstIterator;
     ConstIterator cbegin();
@@ -62,7 +60,8 @@ class BTree {
     unsigned int size() { return _size; };
     unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
 
-    // Public version that envelops the private _find method: only for internal use, to be dropped.
+    // Public version that envelops the private _find method: only for internal use, to be
+    // dropped.
     Node *_find_public(K key) { return _find(key); }
 
 #ifdef DEBUG
@@ -97,6 +96,63 @@ class BTree<K, V, cmp>::Node {
 
         return sub_nodes;
     };
+
+    Node *get_leftmost() {
+        Node *temp_iter = left.get();
+        while (temp_iter->left) {
+            temp_iter = temp_iter->left.get();
+        }
+        return temp_iter;
+    }
+
+    bool operator<(const Node &other) const {
+        return BTree<K, V, cmp>::_compare(key(), other.key());
+    }
+    bool operator>(const Node &other) const {
+        return BTree<K, V, cmp>::_compare(other.key(), key());
+    }
+    bool operator==(const Node &other) const { return not(*this < other) and not(*this > other); }
+};
+
+template <typename K, typename V, typename cmp>
+class BTree<K, V, cmp>::Iterator {
+    Node *_current;
+
+   public:
+    Iterator();
+    Iterator(Node *current) : _current{current} {};
+    // Iterator(K key);
+    // V &operator*() const { return _current->val(); }
+    K &key() const { return _current->key(); }
+    V val() const { return _current->val(); }
+
+    // ++it
+    Iterator &operator++() {
+        // If a child with a greater key exists (right pointer), move to it and then go to the
+        // leftmost branch.
+        if (_current->right) {
+            _current = _current->get_leftmost();
+            return *this;
+        }
+
+        Node *starting_node = _current;
+
+        while (_current < starting_node) {
+            _current = _current->_parent;
+        }
+
+        return *this;
+    }
+
+    // it++
+    Iterator operator++(int) {
+        Iterator it{_current};
+        ++(*this);
+        return it;
+    }
+
+    bool operator==(const Iterator &other) { return _current == other._current; }
+    bool operator!=(const Iterator &other) { return !(*this == other); }
 };
 
 //
@@ -122,26 +178,12 @@ class BTree<K, V, cmp>::Node {
 //
 
 template <typename K, typename V, typename cmp>
-bool BTree<K, V, cmp>::_go_left_direction(K key_node_on_tree, K new_node_key) {
-    // Here we decide where to move according to the comparator; to change the overall tree
-    // ordering, we could just negate the comparator here once for the whole tree.
-    // E.g. we receive a key_node_on_tree = 42 and a new_node_key = 43, so the default less
-    // operator
-    // returns true, because 42<43, but we flip the result because we want to go right if the
-    // new
-    // key is larger than the existing.
-    // At the end of the day, this is done only to improve the visual structure for us humans,
-    // computers don't care if our tree is ordered in the inverse way.
-    return !comparator(key_node_on_tree, new_node_key);
-}
-
-template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     Node *temp_iter = root.get();
 
     if (temp_iter->key() == key)
         return temp_iter;
-    bool go_left = _go_left_direction(temp_iter->key(), key);
+    bool go_left = _compare(temp_iter->key(), key);
 
     DEBUG_MSG(std::boolalpha);
     DEBUG_MSG("the root node has key: " << temp_iter->key() << " and the search key is " << key);
@@ -160,7 +202,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
         if (temp_iter->key() == key)
             return temp_iter;
 
-        go_left = _go_left_direction(temp_iter->key(), key);
+        go_left = _compare(temp_iter->key(), key);
     }
 
     return temp_iter;
@@ -195,7 +237,7 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
     if (temp_iter->key() == pair.first) {
         temp_iter->_pair = pair;
         return true;
-    } else if (_go_left_direction(temp_iter->key(), pair.first)) {
+    } else if (_compare(temp_iter->key(), pair.first)) {
         DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a left");
         temp_iter->left = std::unique_ptr<Node>(new Node(pair, temp_iter));
     } else {
