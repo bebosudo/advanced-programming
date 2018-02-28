@@ -172,7 +172,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::is_balanced() {
-    if (height() <= std::sqrt(_size) + 1)
+    if (height() <= std::ceil(std::log2(_size)))
         return true;
     else
         return false;
