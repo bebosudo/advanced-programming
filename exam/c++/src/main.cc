@@ -1,7 +1,6 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "btree.h"
 #include "doctest.h"
-#include <functional>  // std::less
 
 // In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
 // If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the tests continue to
@@ -90,7 +89,7 @@ void tree_keys(int *keys_array) {
     }
 }
 
-TEST_CASE("test the _find private method (exposed by `_find_public` when in debug mode)") {
+TEST_CASE("_find private method (exposed by `_find_public` when in debug mode)") {
     DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
 
@@ -118,7 +117,20 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     REQUIRE(tree._find_public(999999) == nullptr);
 }
 
-TEST_CASE("test iterator implementation") {
+TEST_CASE("iterator basic test") {
+    BTree<int, float, std::less<int>> tree;
+
+    float value = 3.14;
+    tree.insert(2, value);
+    tree.insert(1, value);
+    tree.insert(3, value);
+
+    for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end(); ++it) {
+        std::cout << it.key() << std::endl;
+    }
+}
+
+TEST_CASE("iterator_implementation_1") {
     BTree<int, float, std::less<int>> tree;
 
     int keys[20];
@@ -135,16 +147,44 @@ TEST_CASE("test iterator implementation") {
 
     SUBCASE("test normal iteration") {
         int last_element_seen = lowest_value;
-        for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end();
-             ++it) {
-            CHECK(std::less<int>()(last_element_seen, it.val()));
-            last_element_seen = it.val();
+
+        BTree<int, float, std::less<int>>::Iterator it = tree.begin();
+        // Or:
+        // BTree<int, float, std::less<int>>::Iterator it{&tree};
+
+        for (; it != tree.end(); ++it) {
+            // We use less_equal so that the lowest number previously seen satisfies the check.
+            CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+            last_element_seen = it.key();
         }
     }
     // SUBCASE("test iteration on missing key") {
     //     CHECK_THROWS_AS(BTree<int, float, std::less<int>>::Iterator it = tree.begin(99999),
     //                     IteratorInit_key_not_found);
     // }
+}
+
+TEST_CASE("iterator_implementation_2") {
+    BTree<int, float, std::less<int>> tree;
+
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 1;
+    float value = 3.14;
+
+    for (int i = 0; i < 15; i++) {
+        tree.insert(keys[i], value);
+    }
+
+    SUBCASE("test normal iteration") {
+        BTree<int, float, std::less<int>>::Iterator it = tree.begin();
+        // Or:
+        // BTree<int, float, std::less<int>>::Iterator it{&tree};
+
+        for (; it != tree.end(); ++it) {
+            // We use less_equal so that the lowest number previously seen satisfies the check.
+            CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+            last_element_seen = it.key();
+        }
+    }
 }
 
 #endif
