@@ -112,4 +112,33 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
 }
+
+TEST_CASE("test iterator implementation") {
+    BTree<int, float, std::less<int>> tree;
+
+    int keys[20];
+    tree_keys(keys);
+    float value = 3.14;
+
+    int lowest_value = keys[0];
+    for (int i = 0; i < 20; ++i) {
+        if (keys[i] < lowest_value)
+            lowest_value = keys[i];
+
+        tree.insert(keys[i], value);
+    }
+
+    SUBCASE("test normal iteration") {
+        int last_element_seen = lowest_value;
+        for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end();
+             ++it) {
+            CHECK(std::less<int>()(last_element_seen, it.val()));
+            last_element_seen = it.val();
+        }
+    }
+    SUBCASE("test iteration on missing key") {
+        CHECK_THROWS_AS(BTree<int, float, std::less<int>>::Iterator it = tree.begin(99999),
+                        IteratorInit_key_not_found);
+    }
+}
 #endif

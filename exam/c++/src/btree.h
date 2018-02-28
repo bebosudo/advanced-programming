@@ -75,6 +75,7 @@ template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
    public:
     std::pair<K, V> _pair;
+    Node *parent;
     std::unique_ptr<BTree::Node> left, right;
 
     Node(std::pair<K, V> pair) : _pair{pair} {};
