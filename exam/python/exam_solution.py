@@ -48,7 +48,7 @@ class PostcardList(object):
             self._file = file_to_load
 
         with open(self._file) as fd:
-            # Strip away the newline and the trailing semicolon after the `to` field.
+            ##
             self._postcards = [line for line in fd]
 
         self._parse_postcards()
@@ -58,10 +58,18 @@ class PostcardList(object):
         return len(self._postcards)
 
     def writeFile(self):
-        pass
+        pst_list = self._get_postcard_list()
+    
+        with open(self._file, 'w') as f:
+            for line in pst_list:
+                f.write(line)
 
     def updateFile(self):
-        pass
+        pst_list = self._get_postcard_list()
+
+        with open(self._file, 'a') as f:
+            for line in pst_list:
+                f.write(line)
 
     def updateLists(self):
         self.readFile(self._file)
@@ -98,3 +106,16 @@ class PostcardList(object):
             return [x for i, x in enumerate(self._postcards) if i in self._to[receiver]]
         else:
             return []
+
+    def _get_postcard_list(self):
+        l = []
+        template_str = "date:{_date}; from:{_from}; to:{_to};\n"
+
+        for i, _ in enumerate(self._postcards):
+            date_str, = [k for k in self._date if i in self._date[k]]
+            from_str, = [k for k in self._from if i in self._from[k]]
+            to_str, = [k for k in self._to if i in self._to[k]]
+
+            l.append(template_str.format(_date=date_str, _from=from_str, _to=to_str))
+
+        return l
