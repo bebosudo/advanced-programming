@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 '''
 Exam requests:
 
@@ -79,6 +80,10 @@ class Test(unittest.TestCase):
         self._PstLst[0]._postcards[0] = "Wrong format!!"
         with self.assertRaises(ValueError, msg="Postcard \d+ from file .*\s* has an unrecognized format.*"):
             self._PstLst[0]._parse_postcards()
+
+    def test_length_postcard_list(self):
+        for postcard in self._PstLst:
+            self.assertEqual(postcard.getNumberOfPostcards(), len(postcard._postcards))
 
     def test_check_getPostcardByDateRange(self):
         dr_test = []

@@ -48,8 +48,15 @@ class PostcardList(object):
 
         self._parse_postcards()
 
+    @property
+    def number_of_postcards(self):
+        return len(self._postcards)
+
     def parsePostcards(self, *args, **kwargs):
         return self._parse_postcards(*args, **kwargs)
 
     def readFile(self, *args, **kwargs):
         return self.read_file(*args, **kwargs)
+
+    def getNumberOfPostcards(self):
+        return self.number_of_postcards
