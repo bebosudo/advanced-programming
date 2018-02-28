@@ -75,10 +75,10 @@ template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
    public:
     std::pair<K, V> _pair;
-    Node *parent;
+    Node *_parent;
     std::unique_ptr<BTree::Node> left, right;
 
-    Node(std::pair<K, V> pair) : _pair{pair} {};
+    Node(std::pair<K, V> pair, Node *parent = nullptr) : _pair{pair}, _parent{parent} {};
 
     void set_left(Node &child) { left = child; };
     void set_right(Node &child) { right = child; };
@@ -197,10 +197,10 @@ bool BTree<K, V, cmp>::insert(std::pair<K, V> pair) {
         return true;
     } else if (_go_left_direction(temp_iter->key(), pair.first)) {
         DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a left");
-        temp_iter->left = std::unique_ptr<Node>(new Node(pair));
+        temp_iter->left = std::unique_ptr<Node>(new Node(pair, temp_iter));
     } else {
         DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a right");
-        temp_iter->right = std::unique_ptr<Node>(new Node(pair));
+        temp_iter->right = std::unique_ptr<Node>(new Node(pair, temp_iter));
     }
 
     _size++;

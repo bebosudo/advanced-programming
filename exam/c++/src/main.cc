@@ -78,6 +78,18 @@ TEST_CASE("insert, size+traversal_size and clear methods") {
     }
 }
 
+void tree_keys(int *keys_array) {
+    for (int i = 0; i < 20; ++i) {
+        if (i < 6) {
+            keys_array[i] = 30 + i;
+        } else if (i < 12) {
+            keys_array[i] = 40 + i - 6;
+        } else {
+            keys_array[i] = 20 + i - 12;
+        }
+    }
+}
+
 TEST_CASE("test the _find private method (exposed by `_find_public` when in debug mode)") {
     DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
@@ -86,17 +98,10 @@ TEST_CASE("test the _find private method (exposed by `_find_public` when in debu
     REQUIRE(tree.traversal_size() == 0);
 
     int keys[20];
+    tree_keys(keys);
     float value = 3.14;
 
     for (int i = 0; i < 20; ++i) {
-        if (i < 6) {
-            keys[i] = 30 + i;
-        } else if (i < 12) {
-            keys[i] = 40 + i - 6;
-        } else {
-            keys[i] = 20 + i - 12;
-        }
-
         tree.insert(keys[i], value);
         REQUIRE(tree._find_public(keys[i])->_pair.second == value);
     }
@@ -141,4 +146,5 @@ TEST_CASE("test iterator implementation") {
                         IteratorInit_key_not_found);
     }
 }
+
 #endif
