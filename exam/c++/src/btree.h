@@ -59,13 +59,14 @@ class BTree {
     Iterator find(K key);
 
     unsigned int size() { return _size; };
+
+#ifdef DEBUG
     unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
 
     // Public version that envelops the private _find method: only for internal use, to be
     // dropped.
     Node *_find_public(K key) { return _find(key); }
 
-#ifdef DEBUG
     Node *get_root() { return root.get(); }
 
 #endif
@@ -87,6 +88,8 @@ class BTree<K, V, cmp>::Node {
     const V &val() const { return value(); }
     K get_key() { return key(); }
     V get_value() { return value(); }
+
+#ifdef DEBUG
     unsigned int traverse() {
         unsigned int sub_nodes = 1;
 
@@ -97,6 +100,7 @@ class BTree<K, V, cmp>::Node {
 
         return sub_nodes;
     };
+#endif
 
     Node *get_leftmost() {
         if (not left)
