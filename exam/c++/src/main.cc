@@ -195,12 +195,8 @@ TEST_CASE("const_iterator implementation") {
         tree.insert(keys[i], value);
     }
 
-
-
-
     SUBCASE("test normal iteration") {
         BTree<int, float, std::less<int>>::const_iterator cit = tree.cbegin();
-
 
         for (; cit != tree.cend(); ++cit) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
@@ -220,7 +216,25 @@ TEST_CASE("print iterator") {
         tree.insert(keys[i], value);
     }
 
-    std::cout << "Testing the printing function:" << std::endl;
+    std::cout << "Testing the printing function: ";
     tree.print();
+}
+
+TEST_CASE("find with iterator") {
+    BTree<int, float, std::less<int>> tree;
+
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 9;
+    float value = 3.14;
+
+    for (int i = 0; i < 15; i++)
+        tree.insert(keys[i], value);
+
+    BTree<int, float, std::less<int>>::iterator it = tree.find(last_element_seen);
+
+    for (; it != tree.end(); ++it) {
+        // This should iterate over half of the three, from 9 to 15 included.
+        CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+        last_element_seen = it.key();
+    }
 }
 #endif

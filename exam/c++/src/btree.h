@@ -17,10 +17,6 @@
     } while (false)
 #endif
 
-
-
-
-
 template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
    private:
@@ -57,21 +53,8 @@ class BTree {
     iterator end() { return iterator{nullptr}; };
 
     class const_iterator;
-    const_iterator cbegin()
-    { 
-
-    
-        return const_iterator{this};
-
-    };
-    const_iterator cend() 
-    {
-        
-
-        return const_iterator{nullptr};
-
-
-    };
+    const_iterator cbegin() { return const_iterator{this}; };
+    const_iterator cend() { return const_iterator{nullptr}; };
 
     iterator find(K key);
 
@@ -79,18 +62,10 @@ class BTree {
 
 #ifdef DEBUG
     unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
-
-    // Public version that envelops the private _find method: only for internal use, to be
-    // dropped.
     Node *_find_public(K key) { return _find(key); }
-
     Node *get_root() { return root.get(); }
-
 #endif
 };
-
-
-
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
@@ -134,10 +109,6 @@ class BTree<K, V, cmp>::Node {
     }
 };
 
-
-
-
-
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::iterator {
    protected:
@@ -173,33 +144,20 @@ class BTree<K, V, cmp>::iterator {
     bool operator!=(const iterator &other) { return !(*this == other); }
 };
 
-
-
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
-
-
-
    public:
+    // using iterator::iterator;
 
-    //using iterator::iterator;
-
-    //const_iterator(iterator &it): _current{it._current}, _tree_ref{it._tree_ref} {}; 
-    //const_iterator(iterator &it): iterator{}
-    explicit const_iterator(BTree *tree_ref, Node *current = nullptr) : iterator{tree_ref, current} {}
-
-
-
+    // const_iterator(iterator &it): _current{it._current}, _tree_ref{it._tree_ref} {};
+    // const_iterator(iterator &it): iterator{}
+    explicit const_iterator(BTree *tree_ref, Node *current = nullptr)
+        : iterator{tree_ref, current} {}
 
     const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
 
     const V val() const { return BTree<K, V, cmp>::iterator::val(); }
-
-
-
 };
-
-
 
 //
 //
@@ -335,6 +293,12 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
         DEBUG_MSG("no node exists with the given key, returning a nullptr");
         return nullptr;
     }
+}
+
+template <typename K, typename V, typename cmp>
+typename BTree<K, V, cmp>::iterator BTree<K, V, cmp>::find(K key) {
+    iterator it{this, _find(key)};
+    return it;
 }
 
 template <typename K, typename V, typename cmp>
