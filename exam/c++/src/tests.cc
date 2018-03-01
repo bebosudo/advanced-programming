@@ -132,7 +132,7 @@ TEST_CASE("tree balancing") {
             tree.insert(key, value);
             key--;
         }
-        
+
         REQUIRE(tree.size() == 12);
         REQUIRE(tree.traversal_size() == 12);
 
@@ -150,7 +150,7 @@ TEST_CASE("tree balancing") {
     }
 
     SUBCASE("check balancing function") {
-        int keys[] = {12, 4, 15, 1, 22, 8, 9, 10, 11}; // len: 9
+        int keys[] = {12, 4, 15, 1, 22, 8, 9, 10, 11};  // len: 9
         float value = 2.7;
 
         for (int i = 0; i < 9; i++)
@@ -160,13 +160,10 @@ TEST_CASE("tree balancing") {
         REQUIRE(tree.height() == 6);
 
         tree.balance();
-        REQUIRE(tree.height() == 4); // should be ceil(log2(9)) == 4 if balanced
+        REQUIRE(tree.height() == 4);  // should be ceil(log2(9)) == 4 if balanced
         REQUIRE(tree.size() == 9);
     }
-
-
 }
-
 
 TEST_CASE("iterator basic test") {
     BTree<int, float, std::less<int>> tree;
