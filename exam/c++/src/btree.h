@@ -59,14 +59,17 @@ class BTree {
     class const_iterator;
     const_iterator cbegin()
     { 
+
     
-        return begin();
+        return const_iterator{this};
 
     };
     const_iterator cend() 
     {
         
-        return end();
+
+        return const_iterator{nullptr};
+
 
     };
 
@@ -137,6 +140,7 @@ class BTree<K, V, cmp>::Node {
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::iterator {
+   protected:
     Node *_current;
     BTree *_tree_ref;
 
@@ -176,7 +180,16 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
 
 
 
-    public:
+   public:
+
+    //using iterator::iterator;
+
+    //const_iterator(iterator &it): _current{it._current}, _tree_ref{it._tree_ref} {}; 
+    //const_iterator(iterator &it): iterator{}
+    explicit const_iterator(BTree *tree_ref, Node *current = nullptr) : iterator{tree_ref, current} {}
+
+
+
 
     const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
 

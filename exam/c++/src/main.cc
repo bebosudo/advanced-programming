@@ -185,6 +185,31 @@ TEST_CASE("iterator_implementation_2") {
     }
 }
 
+TEST_CASE("const_iterator implementation") {
+    BTree<int, float, std::less<int>> tree;
+
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 1;
+    float value = 3.14;
+
+    for (int i = 0; i < 15; i++) {
+        tree.insert(keys[i], value);
+    }
+
+
+
+
+    SUBCASE("test normal iteration") {
+        BTree<int, float, std::less<int>>::const_iterator cit = tree.cbegin();
+
+
+        for (; cit != tree.cend(); ++cit) {
+            // We use less_equal so that the lowest number previously seen satisfies the check.
+            CHECK(std::less_equal<int>()(last_element_seen, cit.key()));
+            last_element_seen = cit.key();
+        }
+    }
+}
+
 TEST_CASE("print iterator") {
     BTree<int, float, std::less<int>> tree;
 
