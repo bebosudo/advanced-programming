@@ -48,15 +48,15 @@ class BTree {
 
     std::pair<K, V> erase(K key);
 
-    class Iterator;
-    Iterator begin() { return Iterator{this}; };
-    Iterator end() { return Iterator{nullptr}; };
+    class iterator;
+    iterator begin() { return iterator{this}; };
+    iterator end() { return iterator{nullptr}; };
 
-    class ConstIterator;
-    ConstIterator cbegin();
-    ConstIterator cend();
+    class const_iterator;
+    const_iterator cbegin();
+    const_iterator cend();
 
-    Iterator find(K key);
+    iterator find(K key);
 
     unsigned int size() { return _size; };
 
@@ -127,12 +127,12 @@ class BTree<K, V, cmp>::Node {
 };
 
 template <typename K, typename V, typename cmp>
-class BTree<K, V, cmp>::Iterator {
+class BTree<K, V, cmp>::iterator {
     Node *_current;
     BTree *_tree_ref;
 
    public:
-    explicit Iterator(BTree *tree_ref, Node *current = nullptr) : _tree_ref{tree_ref} {
+    explicit iterator(BTree *tree_ref, Node *current = nullptr) : _tree_ref{tree_ref} {
         if (current != nullptr) {
             _current = current;
         } else if (_tree_ref != nullptr and _tree_ref->root) {
@@ -142,23 +142,23 @@ class BTree<K, V, cmp>::Iterator {
         }
     };
 
-    // Iterator(K key);
+    // iterator(K key);
     // V &operator*() const { return _current->val(); }
     const K &key() const { return _current->key(); }
     const V val() const { return _current->val(); }
 
     // ++it
-    Iterator &operator++();
+    iterator &operator++();
 
     // it++
-    Iterator operator++(int) {
-        Iterator it{_tree_ref, _current};
+    iterator operator++(int) {
+        iterator it{_tree_ref, _current};
         ++(*this);
         return it;
     }
 
-    bool operator==(const Iterator &other) { return _current == other._current; }
-    bool operator!=(const Iterator &other) { return !(*this == other); }
+    bool operator==(const iterator &other) { return _current == other._current; }
+    bool operator!=(const iterator &other) { return !(*this == other); }
 };
 
 //
@@ -185,13 +185,13 @@ class BTree<K, V, cmp>::Iterator {
 
 template <typename K, typename V, typename cmp>
 void BTree<K, V, cmp>::print() {
-    Iterator it = begin();
+    iterator it = begin();
 
     std::cout << "{";
 
     if (it != end()) {
         std::cout << "'" << it.key() << "': '" << it.val() << "'";
-    
+
         it++;
     }
 
@@ -298,7 +298,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Iterator &BTree<K, V, cmp>::Iterator::operator++() {
+typename BTree<K, V, cmp>::iterator &BTree<K, V, cmp>::iterator::operator++() {
     if (not _current)
         return *this;
 

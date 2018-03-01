@@ -127,7 +127,7 @@ TEST_CASE("iterator basic test") {
     tree.insert(1, value);
     tree.insert(3, value);
 
-    for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end(); ++it) {
+    for (BTree<int, float, std::less<int>>::iterator it = tree.begin(); it != tree.end(); ++it) {
         CHECK(std::less_equal<int>()(last_element_seen, it.key()));
         last_element_seen = it.key();
     }
@@ -151,9 +151,9 @@ TEST_CASE("iterator_implementation_1") {
     SUBCASE("test normal iteration") {
         int last_element_seen = lowest_value;
 
-        BTree<int, float, std::less<int>>::Iterator it = tree.begin();
+        BTree<int, float, std::less<int>>::iterator it = tree.begin();
         // Or:
-        // BTree<int, float, std::less<int>>::Iterator it{&tree};
+        // BTree<int, float, std::less<int>>::iterator it{&tree};
 
         for (; it != tree.end(); ++it) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
@@ -162,8 +162,8 @@ TEST_CASE("iterator_implementation_1") {
         }
     }
     // SUBCASE("test iteration on missing key") {
-    //     CHECK_THROWS_AS(BTree<int, float, std::less<int>>::Iterator it = tree.begin(99999),
-    //                     IteratorInit_key_not_found);
+    //     CHECK_THROWS_AS(BTree<int, float, std::less<int>>::iterator it = tree.begin(99999),
+    //                     iteratorInit_key_not_found);
     // }
 }
 
@@ -178,9 +178,9 @@ TEST_CASE("iterator_implementation_2") {
     }
 
     SUBCASE("test normal iteration") {
-        BTree<int, float, std::less<int>>::Iterator it = tree.begin();
+        BTree<int, float, std::less<int>>::iterator it = tree.begin();
         // Or:
-        // BTree<int, float, std::less<int>>::Iterator it{&tree};
+        // BTree<int, float, std::less<int>>::iterator it{&tree};
 
         for (; it != tree.end(); ++it) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
@@ -199,7 +199,7 @@ TEST_CASE("print iterator") {
     for (int i = 0; i < 15; i++) {
         tree.insert(keys[i], value);
     }
-    
+
     std::cout << "Testing the printing function:" << std::endl;
 
     tree.print();
