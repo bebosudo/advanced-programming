@@ -90,7 +90,6 @@ void tree_keys(int *keys_array) {
 }
 
 TEST_CASE("_find private method (exposed by `_find_public` when in debug mode)") {
-    DEBUG_MSG("\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
@@ -151,9 +150,7 @@ TEST_CASE("iterator_implementation_1") {
     SUBCASE("test normal iteration") {
         int last_element_seen = lowest_value;
 
-        BTree<int, float, std::less<int>>::iterator it = tree.begin();
-        // Or:
-        // BTree<int, float, std::less<int>>::iterator it{&tree};
+        BTree<int, float, std::less<int>>::iterator it = tree.begin();  // or `::iterator it{&tree}`
 
         for (; it != tree.end(); ++it) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
@@ -179,8 +176,6 @@ TEST_CASE("iterator_implementation_2") {
 
     SUBCASE("test normal iteration") {
         BTree<int, float, std::less<int>>::iterator it = tree.begin();
-        // Or:
-        // BTree<int, float, std::less<int>>::iterator it{&tree};
 
         for (; it != tree.end(); ++it) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
@@ -201,7 +196,6 @@ TEST_CASE("print iterator") {
     }
 
     std::cout << "Testing the printing function:" << std::endl;
-
     tree.print();
 }
 #endif

@@ -112,18 +112,6 @@ class BTree<K, V, cmp>::Node {
         }
         return temp_iter;
     }
-
-    // bool operator<(const Node &other) {
-    //     bool res = BTree<K, V, cmp>::comparator(key(), other.key());
-    //     return res;
-    // }
-
-    // bool operator>(const Node &other) const {
-    //     return BTree<K, V, cmp>::_compare(other.key(), key());
-    // }
-
-    // bool operator==(const Node &other) const { return not(*this < other) and not(*this > other);
-    // }
 };
 
 template <typename K, typename V, typename cmp>
@@ -143,7 +131,6 @@ class BTree<K, V, cmp>::iterator {
     };
 
     // iterator(K key);
-    // V &operator*() const { return _current->val(); }
     const K &key() const { return _current->key(); }
     const V val() const { return _current->val(); }
 
