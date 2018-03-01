@@ -181,6 +181,25 @@ class BTree<K, V, cmp>::Iterator {
 //
 
 template <typename K, typename V, typename cmp>
+void BTree<K, V, cmp>::print() {
+    Iterator it = begin();
+
+    std::cout << "{";
+
+    if (it != end()) {
+        std::cout << "'" << it.key() << "': '" << it.val() << "'";
+    
+        ++it;
+    }
+
+    for (; it != end(); ++it) {
+        std::cout << ", '" << it.key() << "': '" << it.val() << "'";
+    }
+
+    std::cout << "}" << std::endl;
+}
+
+template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     Node *temp_iter = root.get();
 
