@@ -4,7 +4,7 @@ CC         = g++
 GENERIC_F  = -Wall -Wextra -I. -Idoctest/doctest/
 
 CFLAGS     = -O0 -std=c++11 $(GENERIC_F)
-DEBUG_MODE = -DDEBUG
+DEBUG_MODE = -DDEBUG -g
 
 LINKER     = g++
 LFLAGS     = $(GENERIC_F) -lm
@@ -18,7 +18,9 @@ INCLUDES   = $(wildcard $(SRCDIR)/*.h)
 OBJECTS    = $(SOURCES:$(SRCDIR)/%.cc=$(OBJDIR)/%.o)
 rm         = rm -f
 
-.PHONY: format clear_screen test tests extend_cflags valgrind_test
+FIXED_ARGS = -d
+
+.PHONY: format clear_screen test tests extend_cflags valgrind
 
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
@@ -33,8 +35,8 @@ format: $(SOURCES)
 	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
 	@echo "Formatting done!"
 
-valgrind_test: $(BINDIR)/$(TARGET)
-	valgrind ./$(BINDIR)/$(TARGET)
+valgrind: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
+	valgrind $(VALGR_ARGS) ./$(BINDIR)/$(TARGET) $(ARGS) $(FIXED_ARGS)
 
 .PHONY: clean
 clean:
@@ -55,4 +57,4 @@ extend_cflags:
 # https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
 test: tests
 tests: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
-	$(BINDIR)/$(TARGET) $(ARGS)
+	$(BINDIR)/$(TARGET) $(ARGS) $(FIXED_ARGS)
