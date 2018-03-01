@@ -221,7 +221,6 @@ TEST_CASE("print iterator") {
 
 TEST_CASE("find method with iterator") {
     BTree<int, float, std::less<int>> tree;
-
     int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 9;
     float value = 3.14;
 
@@ -230,7 +229,6 @@ TEST_CASE("find method with iterator") {
 
     SUBCASE("key found") {
         BTree<int, float, std::less<int>>::iterator it = tree.find(last_element_seen);
-
         for (; it != tree.end(); ++it) {
             // This should iterate over half of the three, from 9 to 15 included.
             CHECK(std::less_equal<int>()(last_element_seen, it.key()));
@@ -240,7 +238,37 @@ TEST_CASE("find method with iterator") {
 
     SUBCASE("key not found makes iterator go to end()") {
         BTree<int, float, std::less<int>>::iterator it = tree.find(9999999);
-        CHECK((it == tree.end()));  // Parenthesis around the condition are required in this case.
+        CHECK((it == tree.end()));  // Parenthesis around the condition are required in these cases.
     }
 }
+
+TEST_CASE("erase method") {
+    BTree<int, float, std::less<int>> tree;
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
+    float value = 3.14;
+    for (int i = 0; i < 15; i++)
+        tree.insert(keys[i], value);
+
+    SUBCASE("simple erase") {
+        tree.erase(2);
+        CHECK((tree.find(2) == tree.end()));
+
+        BTree<int, float, std::less<int>>::iterator it = tree.begin();
+        for (; it != tree.end(); ++it) {
+            CHECK(it.key() != 2);
+        }
+    }
+
+    SUBCASE("erase during iteration") {
+        BTree<int, float, std::less<int>>::iterator it = tree.begin();
+        while (it.key() < 11) {
+            ++it;
+        }
+        tree.erase(14);
+        for (; it != tree.end(); ++it) {
+            CHECK(it.key() != 14);
+        }
+    }
+}
+
 #endif
