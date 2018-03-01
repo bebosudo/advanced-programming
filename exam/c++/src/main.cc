@@ -120,13 +120,16 @@ TEST_CASE("_find private method (exposed by `_find_public` when in debug mode)")
 TEST_CASE("iterator basic test") {
     BTree<int, float, std::less<int>> tree;
 
+    int last_element_seen = 1;
     float value = 3.14;
+
     tree.insert(2, value);
     tree.insert(1, value);
     tree.insert(3, value);
 
     for (BTree<int, float, std::less<int>>::Iterator it = tree.begin(); it != tree.end(); ++it) {
-        std::cout << it.key() << std::endl;
+        CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+        last_element_seen = it.key();
     }
 }
 
