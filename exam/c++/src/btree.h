@@ -17,6 +17,10 @@
     } while (false)
 #endif
 
+
+
+
+
 template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
    private:
@@ -53,8 +57,18 @@ class BTree {
     iterator end() { return iterator{nullptr}; };
 
     class const_iterator;
-    const_iterator cbegin();
-    const_iterator cend();
+    const_iterator cbegin()
+    { 
+    
+        return begin();
+
+    };
+    const_iterator cend() 
+    {
+        
+        return end();
+
+    };
 
     iterator find(K key);
 
@@ -71,6 +85,9 @@ class BTree {
 
 #endif
 };
+
+
+
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
@@ -114,6 +131,10 @@ class BTree<K, V, cmp>::Node {
     }
 };
 
+
+
+
+
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::iterator {
     Node *_current;
@@ -147,6 +168,25 @@ class BTree<K, V, cmp>::iterator {
     bool operator==(const iterator &other) { return _current == other._current; }
     bool operator!=(const iterator &other) { return !(*this == other); }
 };
+
+
+
+template <typename K, typename V, typename cmp>
+class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
+
+
+
+    public:
+
+    const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
+
+    const V val() const { return BTree<K, V, cmp>::iterator::val(); }
+
+
+
+};
+
+
 
 //
 //
