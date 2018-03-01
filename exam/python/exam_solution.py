@@ -10,9 +10,12 @@ class PostcardList(object):
         self._from = {}
         self._to = {}
 
-    def _parse_postcards(self):
+    def _parse_postcards(self, postcards_list=None):
         """Extract from each postcard its date, from and sender fields."""
-        for postcard_idx, postcard in enumerate(self._postcards):
+        
+        postcards_list = postcards_list or self._postcards
+
+        for postcard_idx, postcard in enumerate(postcards_list):
 
             try:
                 date_raw, from_raw, to_raw, _ = postcard.split(";")
@@ -48,7 +51,6 @@ class PostcardList(object):
             self._file = file_to_load
 
         with open(self._file) as fd:
-            ##
             self._postcards = [line for line in fd]
 
         self._parse_postcards()
@@ -58,22 +60,20 @@ class PostcardList(object):
         return len(self._postcards)
 
     def write_file(self):
-        pst_list = self._get_postcards_list()
+        pst_list = self._export_list()
     
         with open(self._file, 'w') as f:
             for line in pst_list:
                 f.write(line)
 
-    def update_file(self):
-        pst_list = self._get_postcards_list()
-
+    def update_file(self, postcards_list):
         with open(self._file, 'a') as f:
-            for line in pst_list:
+            for line in postcards_list:
                 f.write(line)
 
-    def update_lists(self):
-        self.readFile(self._file)
-        self.parsePostcards()
+    def update_lists(self, postcards_list):
+        self._postcards.extend(postscards_list)
+        self._parse_postcards(postcards_list)
 
     def get_postcards_by_date_range(self, date_range):
         start_date, end_date = date_range
@@ -98,7 +98,7 @@ class PostcardList(object):
         else:
             return []
 
-    def _get_postcards_list(self):
+    def _export_list(self):
         l = []
         template_str = "date:{_date}; from:{_from}; to:{_to};\n"
 
@@ -129,11 +129,11 @@ class PostcardList(object):
     def writeFile(self):
         return self.write_file()
 
-    def updateFile(self):
-        return self.update_file()
+    def updateFile(self, *args, **kwargs):
+        return self.update_file(*args, **kwargs)
 
-    def updateLists(self):
-        return self.update_lists()
+    def updateLists(self, *args, **kwargs):
+        return self.update_lists(*args, **kwargs)
 
     def getPostcardsByDateRange(self, *args, **kwargs):
         return self.get_postcards_by_date_range(*args, **kwargs)
