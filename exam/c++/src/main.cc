@@ -259,7 +259,7 @@ TEST_CASE("erase method") {
         }
     }
 
-    SUBCASE("erase during iteration") {
+    SUBCASE("erase in the middle of iteration") {
         BTree<int, float, std::less<int>>::iterator it = tree.begin();
         while (it.key() < 11) {
             ++it;
@@ -269,6 +269,8 @@ TEST_CASE("erase method") {
             CHECK(it.key() != 14);
         }
     }
+
+    SUBCASE("erase missing key") { REQUIRE_THROWS_AS(tree.erase(999999), KeyNotFound); }
 }
 
 #endif

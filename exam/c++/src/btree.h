@@ -17,6 +17,10 @@
     } while (false)
 #endif
 
+struct KeyNotFound {
+    std::string message;
+};
+
 template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
    private:
@@ -34,6 +38,8 @@ class BTree {
     // many other methods.
     Node *_find(K key);
 
+    bool insert(std::unique_ptr<Node> node_to_insert);
+
    public:
     // BTree(){};
     BTree(cmp op = cmp{}) : comparator{op} {};
@@ -46,8 +52,6 @@ class BTree {
     bool clear();
     void balance();
 
-    std::pair<K, V> erase(K key);
-
     class iterator;
     iterator begin() { return iterator{this}; };
     iterator end() { return iterator{this, nullptr}; };
@@ -57,6 +61,7 @@ class BTree {
     const_iterator cend() { return const_iterator{this, nullptr}; };
 
     iterator find(K key);
+    std::pair<K, V> erase(K key);
 
     unsigned int size() { return _size; };
 
@@ -230,39 +235,45 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(const K &key, const V &value) {
-    std::pair<K, V> pair = std::make_pair(key, value);
-    return insert(pair);
+    return insert(std::make_pair(key, value));
 }
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::insert(const std::pair<K, V> &pair) {
-    DEBUG_MSG("inserting new pair: {" << pair.first << ": " << pair.second << "}");
+    return insert(std::unique_ptr<Node>{new Node(pair)});
+}
+
+template <typename K, typename V, typename cmp>
+bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
+    DEBUG_MSG("inserting pair: {" << node_to_insert->key() << ": " << node_to_insert->val() << "}");
     // Basic case, the tree is empty, so the new pair becomes the root object.
     if (!root) {
         DEBUG_MSG("no need to go more down, inserting as new root");
-        root = std::unique_ptr<Node>(new Node(pair));
+        root = std::move(node_to_insert);
         _size++;
         return true;
     }
 
-    // otherwise, we must traverse the tree and find where to place the new node.
-    Node *temp_iter = _traverse_to_closest(pair.first);
+    // Otherwise, we must traverse the tree and find where to place the new node.
+    Node *parent_node = _traverse_to_closest(node_to_insert->key());
 
-    DEBUG_MSG("reached node: {" << temp_iter->key() << ": " << temp_iter->val()
-                                << "}. gonna insert new pair {" << pair.first << ": " << pair.second
-                                << "}");
+    DEBUG_MSG("reached node: {" << parent_node->key() << ": " << parent_node->val()
+                                << "}. gonna insert new pair {" << node_to_insert->key() << ": "
+                                << node_to_insert->val() << "}");
 
     // Now we reached the bottom part of the tree, following one of the branches.
-    // `temp_iter` is now a pointer to the last valid node.
-    if (temp_iter->key() == pair.first) {
-        temp_iter->_pair = pair;
+    // `parent_node` is now a pointer to the last valid node.
+    if (parent_node->key() == node_to_insert->key()) {
+        parent_node->_pair = node_to_insert->_pair;
         return true;
-    } else if (_compare(temp_iter->key(), pair.first)) {
-        DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a left");
-        temp_iter->left = std::unique_ptr<Node>(new Node(pair, temp_iter));
+    } else if (_compare(parent_node->key(), node_to_insert->key())) {
+        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << pair.second << "} at left");
+        parent_node->left = std::move(node_to_insert);
+        parent_node->left->_parent = parent_node;
     } else {
-        DEBUG_MSG("inserting: {" << pair.first << ": " << pair.second << "} a right");
-        temp_iter->right = std::unique_ptr<Node>(new Node(pair, temp_iter));
+        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << pair.second << "} at right");
+        parent_node->right = std::move(node_to_insert);
+        parent_node->right->_parent = parent_node;
     }
 
     _size++;
@@ -325,4 +336,23 @@ typename BTree<K, V, cmp>::iterator &BTree<K, V, cmp>::iterator::operator++() {
     } while (_tree_ref->_compare(starting_node->key(), _current->key()));
 
     return *this;
+}
+
+template <typename K, typename V, typename cmp>
+std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
+    Node *node_to_erase = _find(key);
+    if (node_to_erase == nullptr)
+        throw KeyNotFound{};
+
+    std::unique_ptr<Node> temp_left{node_to_erase->left.release()};
+    std::unique_ptr<Node> temp_right{node_to_erase->right.release()};
+
+    // Always attach the left child in the place of the parent, and then make the tree insert the
+    // right child at the right place.
+    if (node_to_erase->_parent->left->key() == node_to_erase->key())
+        node_to_erase->_parent->left = std::move(temp_left);
+    else
+        node_to_erase->_parent->right = std::move(temp_left);
+
+    insert(std::move(temp_right));
 }
