@@ -132,13 +132,16 @@ class BTree<K, V, cmp>::Iterator {
     BTree *_tree_ref;
 
    public:
-    explicit Iterator(BTree *tree_ref) : _tree_ref{tree_ref} {
-        if (_tree_ref and _tree_ref->root) {
+    explicit Iterator(BTree *tree_ref, Node *current = nullptr) : _tree_ref{tree_ref} {
+        if (current != nullptr) {
+            _current = current;
+        } else if (_tree_ref != nullptr and _tree_ref->root) {
             _current = _tree_ref->root->get_leftmost();
         } else {
             _current = nullptr;
         }
     };
+
     // Iterator(K key);
     // V &operator*() const { return _current->val(); }
     const K &key() const { return _current->key(); }
@@ -149,7 +152,7 @@ class BTree<K, V, cmp>::Iterator {
 
     // it++
     Iterator operator++(int) {
-        Iterator it{_current};
+        Iterator it{_tree_ref, _current};
         ++(*this);
         return it;
     }
@@ -189,7 +192,7 @@ void BTree<K, V, cmp>::print() {
     if (it != end()) {
         std::cout << "'" << it.key() << "': '" << it.val() << "'";
     
-        ++it;
+        it++;
     }
 
     for (; it != end(); ++it) {
