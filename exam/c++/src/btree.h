@@ -50,11 +50,11 @@ class BTree {
 
     class iterator;
     iterator begin() { return iterator{this}; };
-    iterator end() { return iterator{nullptr}; };
+    iterator end() { return iterator{this, nullptr}; };
 
     class const_iterator;
     const_iterator cbegin() { return const_iterator{this}; };
-    const_iterator cend() { return const_iterator{nullptr}; };
+    const_iterator cend() { return const_iterator{this, nullptr}; };
 
     iterator find(K key);
 
@@ -112,19 +112,19 @@ class BTree<K, V, cmp>::Node {
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::iterator {
    protected:
-    Node *_current;
     BTree *_tree_ref;
+    Node *_current;
 
    public:
-    explicit iterator(BTree *tree_ref, Node *current = nullptr) : _tree_ref{tree_ref} {
-        if (current != nullptr) {
-            _current = current;
-        } else if (_tree_ref != nullptr and _tree_ref->root) {
+    // If an iterator is called only with the pointer to a tree, place it at the beginning.
+    explicit iterator(BTree *tree_ref) : _tree_ref{tree_ref} {
+        if (_tree_ref != nullptr and _tree_ref->root)
             _current = _tree_ref->root->get_leftmost();
-        } else {
+        else
             _current = nullptr;
-        }
-    };
+    }
+    // If a Node is passed to the iterator, place it to that node in the tree.
+    explicit iterator(BTree *tree_ref, Node *current) : _tree_ref{tree_ref}, _current{current} {};
 
     // iterator(K key);
     const K &key() const { return _current->key(); }
@@ -149,10 +149,8 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
    public:
     // using iterator::iterator;
 
-    // const_iterator(iterator &it): _current{it._current}, _tree_ref{it._tree_ref} {};
-    // const_iterator(iterator &it): iterator{}
-    explicit const_iterator(BTree *tree_ref, Node *current = nullptr)
-        : iterator{tree_ref, current} {}
+    explicit const_iterator(BTree *tree_ref) : iterator{tree_ref} {};
+    explicit const_iterator(BTree *tree_ref, Node *current) : iterator{tree_ref, current} {}
 
     const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
 
@@ -189,7 +187,6 @@ void BTree<K, V, cmp>::print() {
 
     if (it != end()) {
         std::cout << "'" << it.key() << "': '" << it.val() << "'";
-
         it++;
     }
 
@@ -255,7 +252,7 @@ bool BTree<K, V, cmp>::insert(const std::pair<K, V> &pair) {
                                 << "}. gonna insert new pair {" << pair.first << ": " << pair.second
                                 << "}");
 
-    // Now we reached the bottom part of the three, following one of the branches.
+    // Now we reached the bottom part of the tree, following one of the branches.
     // `temp_iter` is now a pointer to the last valid node.
     if (temp_iter->key() == pair.first) {
         temp_iter->_pair = pair;
@@ -297,8 +294,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
 
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::iterator BTree<K, V, cmp>::find(K key) {
-    iterator it{this, _find(key)};
-    return it;
+    return iterator{this, _find(key)};
 }
 
 template <typename K, typename V, typename cmp>

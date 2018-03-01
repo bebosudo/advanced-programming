@@ -175,9 +175,8 @@ TEST_CASE("iterator_implementation_2") {
     }
 
     SUBCASE("test normal iteration") {
-        BTree<int, float, std::less<int>>::iterator it = tree.begin();
-
-        for (; it != tree.end(); ++it) {
+        for (BTree<int, float, std::less<int>>::iterator it = tree.begin(); it != tree.end();
+             ++it) {
             // We use less_equal so that the lowest number previously seen satisfies the check.
             CHECK(std::less_equal<int>()(last_element_seen, it.key()));
             last_element_seen = it.key();
@@ -220,7 +219,7 @@ TEST_CASE("print iterator") {
     tree.print();
 }
 
-TEST_CASE("find with iterator") {
+TEST_CASE("find method with iterator") {
     BTree<int, float, std::less<int>> tree;
 
     int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 9;
@@ -229,12 +228,19 @@ TEST_CASE("find with iterator") {
     for (int i = 0; i < 15; i++)
         tree.insert(keys[i], value);
 
-    BTree<int, float, std::less<int>>::iterator it = tree.find(last_element_seen);
+    SUBCASE("key found") {
+        BTree<int, float, std::less<int>>::iterator it = tree.find(last_element_seen);
 
-    for (; it != tree.end(); ++it) {
-        // This should iterate over half of the three, from 9 to 15 included.
-        CHECK(std::less_equal<int>()(last_element_seen, it.key()));
-        last_element_seen = it.key();
+        for (; it != tree.end(); ++it) {
+            // This should iterate over half of the three, from 9 to 15 included.
+            CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+            last_element_seen = it.key();
+        }
+    }
+
+    SUBCASE("key not found makes iterator go to end()") {
+        BTree<int, float, std::less<int>>::iterator it = tree.find(9999999);
+        CHECK((it == tree.end()));  // Parenthesis around the condition are required in this case.
     }
 }
 #endif
