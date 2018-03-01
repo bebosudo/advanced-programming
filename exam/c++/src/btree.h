@@ -2,6 +2,7 @@
 #include <memory>
 #include <utility>
 #include <iostream>
+#include <cmath>
 
 // #define VERBOSE
 
@@ -39,6 +40,7 @@ class BTree {
     Node *_find(K key);
 
     bool insert(std::unique_ptr<Node> node_to_insert);
+    unsigned int height(Node *root);
 
    public:
     // BTree(){};
@@ -51,6 +53,9 @@ class BTree {
     void print();
     bool clear();
     void balance();
+
+    unsigned int height();
+    bool is_balanced();
 
     class iterator;
     iterator begin() { return iterator{this}; };
@@ -130,6 +135,7 @@ class BTree<K, V, cmp>::iterator {
     // iterator(K key);
     const K &key() const { return _current->key(); }
     const V &val() const { return _current->val(); }
+    const std::pair<K, V> pair() const { return _current->_pair; }
 
     // ++it
     iterator &operator++();
@@ -227,6 +233,107 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
     }
 
     return temp_iter;
+}
+
+template <typename K, typename V, typename cmp>
+void BTree<K, V, cmp>::balance() {
+    int pos{0}, steps, denominator;
+    unsigned int len{_size};
+
+    std::pair<K, V> temp_array[_size];
+
+    if (!root)
+        return;
+
+    for (iterator it = begin(); it != end(); it++) {
+        temp_array[pos++] = it.pair();
+        /*
+         *
+         * std::cout << temp_array[pos-1].first << ", ";
+         */
+    }
+
+    // Empties the tree
+    clear();
+
+    steps = std::ceil(std::log2(len));
+    denominator = 2;
+
+    // std::cout << steps << "  " << denominator << std::endl;
+
+    for (int i = 1; i <= steps; i++) {
+        // std::cout << "qui i= " << i << std::endl;
+
+        for (int j = 0; j < denominator; j++) {
+            // std::cout << "qui pos= " << j << std::endl;
+
+            if (j % 2 != 0) {
+                pos = std::floor(((double)j / denominator) * len);
+
+                // std::cout << "num " << pos << std::endl;
+
+                insert(temp_array[pos]);
+            }
+        }
+
+        /*
+         for (pos = offset; pos < len; pos += offset)
+         {
+
+             if (pos % 2 != 0)
+                 insert(temp_array[pos]);
+
+         }
+ */
+        denominator *= 2;
+    }
+
+    /*
+    for (m = (r - l); m > 0; m /= 2)
+    {
+       bool c{true};
+        std::cout << "qui\n";
+
+        for (pos = m; pos < len; pos += m)
+        {
+
+            c = insert(temp_array[pos]);
+            std::cout << std::boolalpha << temp_array[pos].first << c << " ";
+        }
+
+
+    }
+
+    */
+}
+
+template <typename K, typename V, typename cmp>
+bool BTree<K, V, cmp>::is_balanced() {
+    if (height() <= std::ceil(std::log2(_size)))
+
+        return true;
+
+    else
+
+        return false;
+}
+
+template <typename K, typename V, typename cmp>
+unsigned int BTree<K, V, cmp>::height() {
+    return height(root.get());
+}
+
+template <typename K, typename V, typename cmp>
+unsigned int BTree<K, V, cmp>::height(Node *root) {
+    unsigned int left_children, right_children;
+
+    if (root) {
+        left_children = root->left ? height(root->left.get()) : 0;
+        right_children = root->right ? height(root->right.get()) : 0;
+
+        return std::max(left_children, right_children) + 1;
+    } else
+        return 0;
 }
 
 template <typename K, typename V, typename cmp>
