@@ -247,10 +247,6 @@ void BTree<K, V, cmp>::balance() {
 
     for (iterator it = begin(); it != end(); it++) {
         temp_array[pos++] = it.pair();
-        /*
-         *
-         * std::cout << temp_array[pos-1].first << ", ";
-         */
     }
 
     // Empties the tree
@@ -259,63 +255,22 @@ void BTree<K, V, cmp>::balance() {
     steps = std::ceil(std::log2(len));
     denominator = 2;
 
-    // std::cout << steps << "  " << denominator << std::endl;
-
     for (int i = 1; i <= steps; i++) {
-        // std::cout << "qui i= " << i << std::endl;
-
         for (int j = 0; j < denominator; j++) {
-            // std::cout << "qui pos= " << j << std::endl;
-
             if (j % 2 != 0) {
                 pos = std::floor(((double)j / denominator) * len);
-
-                // std::cout << "num " << pos << std::endl;
 
                 insert(temp_array[pos]);
             }
         }
 
-        /*
-         for (pos = offset; pos < len; pos += offset)
-         {
-
-             if (pos % 2 != 0)
-                 insert(temp_array[pos]);
-
-         }
- */
         denominator *= 2;
     }
-
-    /*
-    for (m = (r - l); m > 0; m /= 2)
-    {
-       bool c{true};
-        std::cout << "qui\n";
-
-        for (pos = m; pos < len; pos += m)
-        {
-
-            c = insert(temp_array[pos]);
-            std::cout << std::boolalpha << temp_array[pos].first << c << " ";
-        }
-
-
-    }
-
-    */
 }
 
 template <typename K, typename V, typename cmp>
 bool BTree<K, V, cmp>::is_balanced() {
-    if (height() <= std::ceil(std::log2(_size)))
-
-        return true;
-
-    else
-
-        return false;
+    return height() <= std::ceil(std::log2(_size));
 }
 
 template <typename K, typename V, typename cmp>
@@ -332,8 +287,8 @@ unsigned int BTree<K, V, cmp>::height(Node *root) {
         right_children = root->right ? height(root->right.get()) : 0;
 
         return std::max(left_children, right_children) + 1;
-    } else
-        return 0;
+    }
+    return 0;
 }
 
 template <typename K, typename V, typename cmp>
