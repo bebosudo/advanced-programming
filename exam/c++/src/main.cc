@@ -149,6 +149,22 @@ TEST_CASE("tree balancing") {
         REQUIRE(!tree.is_balanced());
     }
 
+    SUBCASE("check balancing function") {
+        int keys[] = {12, 4, 15, 1, 22, 8, 9, 10, 11}; // len: 9
+        float value = 2.7;
+
+        for (int i = 0; i < 9; i++)
+            tree.insert(keys[i], value);
+
+        REQUIRE(tree.size() == 9);
+        REQUIRE(tree.height() == 6);
+
+        tree.balance();
+        REQUIRE(tree.height() == 4); // should be ceil(log2(9)) == 4 if balanced
+        REQUIRE(tree.size() == 9);
+    }
+
+
 }
 
 
