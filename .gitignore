@@ -10,6 +10,7 @@ a.out
 __pycache__
 *pyc
 *.ini
+*.so
 
 exam/*.sublime-*
 exam/c++/build/
