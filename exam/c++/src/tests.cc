@@ -299,8 +299,10 @@ TEST_CASE("erase fast test") {
         tree.insert(keys[i], value);
 
     SUBCASE("simple erase") {
+        REQUIRE(tree.size() == 4);
         tree.erase(4);
         CHECK((tree.find(4) == tree.end()));
+        REQUIRE(tree.size() == 3);
 
         BTree<int, float, std::less<int>>::iterator it = tree.begin();
         for (; it != tree.end(); ++it) {
@@ -317,8 +319,10 @@ TEST_CASE("erase method") {
         tree.insert(keys[i], value);
 
     SUBCASE("simple erase") {
+        REQUIRE(tree.size() == 15);
         tree.erase(2);
         CHECK((tree.find(2) == tree.end()));
+        REQUIRE(tree.size() == 14);
 
         BTree<int, float, std::less<int>>::iterator it = tree.begin();
         for (; it != tree.end(); ++it) {
