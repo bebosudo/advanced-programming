@@ -237,6 +237,9 @@ TEST_CASE("iterator_implementation_tricky") {
     BTree<int, float, std::less<int>> tree;
 
     CHECK((tree.begin() == tree.end()));
+
+    tree.insert(12, 12.312);
+    CHECK(tree.size() == 1);
 }
 
 TEST_CASE("const_iterator implementation") {
@@ -376,11 +379,11 @@ TEST_CASE("erase method limit cases") {
     REQUIRE(tree.size() == 0);
 
     SUBCASE("erase on empty") {
-        tree.erase(2);
+        CHECK_THROWS_AS(tree.erase(2), KeyNotFound);
         REQUIRE(tree.size() == 0);
 
         tree.clear();
-        tree.erase(2);
+        CHECK_THROWS_AS(tree.erase(2), KeyNotFound);
         REQUIRE(tree.size() == 0);
     }
 

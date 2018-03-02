@@ -18,7 +18,7 @@ void BTree<K, V, cmp>::print() {
 
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
-    if (not root)
+    if (!root)
         return nullptr;
 
     Node *temp_iter = root.get();
@@ -168,6 +168,10 @@ bool BTree<K, V, cmp>::clear() {
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
     Node *temp_iter = _traverse_to_closest(key);
+
+    if (temp_iter == nullptr)
+        return nullptr;
+
     DEBUG_MSG("reached node temp_iter {" << temp_iter->key() << ": " << temp_iter->val() << "}");
 
     if (temp_iter->key() == key) {
