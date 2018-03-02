@@ -40,7 +40,7 @@ format: $(SOURCES)
 	@clang-format -style=file -i $^ 2>/dev/null || echo "Install clang-format to format sources."
 	@echo "Formatting done!"
 
-valgrind: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
+valgrind: | clean extend_cflags $(BINDIR)/$(TARGET) clear_screen
 	valgrind $(VALGR_ARGS) ./$(BINDIR)/$(TARGET) $(ARGS) $(FIXED_ARGS)
 
 .PHONY: clean
