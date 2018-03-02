@@ -24,13 +24,12 @@ struct KeyNotFound {
 
 template <typename K, typename V, typename cmp = std::less<K>>
 class BTree {
-   private:
     class Node;
 
     std::unique_ptr<Node> root;
     unsigned int _size{0};
-
     const cmp comparator;
+
     bool _compare(const K &key1, const K &key2) const { return !comparator(key1, key2); }
 
     Node *_traverse_to_closest(K key);
@@ -42,12 +41,22 @@ class BTree {
     bool insert(std::unique_ptr<Node> node_to_insert);
     unsigned int height(Node *root);
 
+    void insert_recursive(Node *current, Node *parent) {
+        std::unique_ptr<Node> temp{new Node(current->_pair)};
+        temp->_parent = parent;
+        insert(std::move(temp));
+
+        if (current->left)
+            insert_recursive(current->left.get(), current);
+        if (current->right)
+            insert_recursive(current->right.get(), current);
+    };
+
    public:
-    // BTree(){};
     BTree(cmp op = cmp{}) : comparator{op} {};
 
-    // The first insert takes key and value as references; then we call the method insert(pair)
-    // internally, so we copy the values only once when calling the second method.
+    unsigned int size() { return _size; };
+
     bool insert(const K &key, const V &value);
     bool insert(const std::pair<K, V> &pair);
     void print();
@@ -69,7 +78,35 @@ class BTree {
     std::pair<K, V> erase(K key);
     const V &operator[](const K &key);
 
-    unsigned int size() { return _size; };
+    /* copy ctor */
+    BTree(const BTree &other) : _size{0}, comparator{other.comparator} {
+        insert_recursive(other.root.get(), nullptr);
+    }
+
+    /* move ctor */
+    BTree(BTree &&other) noexcept
+        : root{std::move(other.root)}, _size{other._size}, comparator{other.comparator} {
+        other._size = 0;
+    }
+
+    /* copy assignment operator */
+    BTree &operator=(const BTree &other) {
+        BTree tmp(other);        // re-use copy-constructor
+        *this = std::move(tmp);  // re-use move-assignment
+        return *this;
+    }
+
+    /* move assignment operator */
+    BTree &operator=(BTree &&other) noexcept {
+        if (this == &other)
+            return *this;
+
+        root = std::move(other.root);
+        _size = std::move(other._size);
+        other._size = 0;
+
+        return *this;
+    }
 
 #ifdef DEBUG
     unsigned int traversal_size() { return (root) ? root->traverse() : 0; };

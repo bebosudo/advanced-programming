@@ -352,4 +352,49 @@ TEST_CASE("square brackets operator") {
     }
 }
 
+TEST_CASE("semantics") {
+    BTree<int, float, std::less<int>> tree;
+    int keys[] = {9, 14, 4};
+    for (int i = 0; i < 3; i++)
+        tree.insert(keys[i], keys[i]);
+
+    SUBCASE("copy constructor") {
+        BTree<int, float, std::less<int>> tree2 = tree;
+        tree.insert(1, 3.14);
+        CHECK(tree.size() - tree2.size() == 1);
+        tree.insert(2, 3.14);
+        tree.insert(3, 3.14);
+        CHECK(tree.size() - tree2.size() == 3);
+        tree2.insert(10, 3.14);
+        CHECK(tree.size() - tree2.size() == 2);
+    }
+
+    SUBCASE("move constructor") {
+        unsigned int size_before = tree.size();
+        BTree<int, float, std::less<int>> tree2{std::move(tree)};
+        CHECK(tree2.size() == size_before);
+        CHECK(tree.size() == 0);
+    }
+
+    SUBCASE("copy assignment operator") {
+        BTree<int, float, std::less<int>> tree2;
+        tree2 = tree;
+        tree.insert(1, 3.14);
+        CHECK(tree.size() - tree2.size() == 1);
+        tree.insert(2, 3.14);
+        tree.insert(3, 3.14);
+        CHECK(tree.size() - tree2.size() == 3);
+        tree2.insert(10, 3.14);
+        CHECK(tree.size() - tree2.size() == 2);
+    }
+
+    SUBCASE("move assignment operator") {
+        unsigned int size_before = tree.size();
+        BTree<int, float, std::less<int>> tree2;
+        tree2 = std::move(tree);
+        CHECK(tree2.size() == size_before);
+        CHECK(tree.size() == 0);
+    }
+}
+
 #endif
