@@ -1,3 +1,6 @@
+#ifndef __BTREE_H__
+#define __BTREE_H__
+
 #include <functional>  // std::less
 #include <memory>
 #include <utility>
@@ -202,3 +205,5 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
 };
 
 #include "btree.hcc"
+
+#endif
