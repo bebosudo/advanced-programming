@@ -344,6 +344,26 @@ TEST_CASE("erase method") {
     SUBCASE("erase missing key") { REQUIRE_THROWS_AS(tree.erase(999999), KeyNotFound); }
 }
 
+TEST_CASE("erase method limit cases") {
+    BTree<int, float, std::less<int>> tree;
+    REQUIRE(tree.size() == 0);
+
+    SUBCASE("erase on empty") {
+        tree.erase(2);
+        REQUIRE(tree.size() == 0);
+
+        tree.clear();
+        tree.erase(2);
+        REQUIRE(tree.size() == 0);
+    }
+
+    SUBCASE("erase on one") {
+        tree.insert(2, 5.7);
+        tree.erase(2);
+        REQUIRE(tree.size() == 0);
+    }
+}
+
 TEST_CASE("square brackets operator") {
     BTree<int, float, std::less<int>> tree;
     int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
