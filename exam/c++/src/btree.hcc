@@ -216,15 +216,42 @@ std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
     if (node_to_erase == nullptr)
         throw KeyNotFound{};
 
-    std::unique_ptr<Node> temp_left, temp_right;
-    if (node_to_erase->left)
-        temp_left = std::move(node_to_erase->left);
-    if (node_to_erase->right)
-        temp_right = std::move(node_to_erase->right);
+//print();
 
-    std::pair<K, V> pair_to_pop = node_to_erase->_pair;
+    std::unique_ptr<Node> temp_node;
+    
+    // We are removing the root node
+    if (node_to_erase->_parent == nullptr)
+        temp_node = std::move(root);
+    
+    else if (node_to_erase->_parent->left->key() == node_to_erase->key())
+        temp_node = std::move(node_to_erase->_parent->left);
+    else
+        temp_node = std::move(node_to_erase->_parent->right);
+
+    _size--;
+
+    if (temp_node->left) {
+        //temp_left = std::move(node_to_erase->left);
+        insert(std::move(temp_node->left));
+        _size--;
+    }
+
+    if (temp_node->right) {
+        //temp_right = std::move(node_to_erase->right);
+        insert(std::move(temp_node->right));
+        _size--;
+    }
+
+    std::pair<K, V> pair_to_pop = temp_node->_pair;
+
+//std::cout << temp_left.get();
+    //temp_left->_parent = node_to_erase->_parent;
+    
     // Always attach the left child in the place of the parent, and then make the tree insert the
-    // right child at the right place.
+    // right child at the right place. This deletes node_to_erase since it is a unique_ptr.
+    
+/*
     if (node_to_erase->_parent->left->key() == node_to_erase->key())
         node_to_erase->_parent->left = std::move(temp_left);
     else
@@ -232,7 +259,7 @@ std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
 
     if (temp_right)
         insert(std::move(temp_right));
-
+*/
     return pair_to_pop;
 }
 
