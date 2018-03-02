@@ -18,3 +18,6 @@ default: clean $(SRC)
 
 clean:
 	rm -rf $(DEST) $(TARGET)
+
+test: default
+	$(PY_VER) ./test_bestbst.py
