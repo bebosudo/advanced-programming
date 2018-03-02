@@ -3,7 +3,7 @@ TARGET     = btree.x
 CC         = g++
 GENERIC_F  = -Wall -Wextra -I. -Idoctest/doctest/
 
-CFLAGS     = -O0 -std=c++11 $(GENERIC_F)
+CFLAGS     = -O2 -std=c++11 $(GENERIC_F)
 DEBUG_MODE = -DDEBUG -g
 
 LINKER     = g++
