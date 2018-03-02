@@ -22,6 +22,11 @@ FIXED_ARGS = -d
 
 .PHONY: format clear_screen test tests extend_cflags valgrind
 
+# https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
+test: tests
+tests: | clean extend_cflags $(BINDIR)/$(TARGET) clear_screen
+	$(BINDIR)/$(TARGET) $(ARGS) $(FIXED_ARGS)
+
 $(BINDIR)/$(TARGET): $(OBJECTS) $(INCLUDES)
 	$(LINKER) $(OBJECTS) $(LFLAGS) -o $@
 	@echo -e "Linking complete!\n"
@@ -40,13 +45,8 @@ valgrind: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
 
 .PHONY: clean
 clean:
-	@$(rm) $(OBJECTS)
+	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
 	@echo "Cleanup complete!"
-
-.PHONY: remove
-remove: clean
-	@$(rm) $(BINDIR)/$(TARGET)
-	@echo "Executable removed!"
 
 clear_screen:
 	@clear
@@ -54,7 +54,3 @@ clear_screen:
 extend_cflags:
 	$(eval CFLAGS += $(DEBUG_MODE))
 
-# https://stackoverflow.com/a/3267187/ and https://stackoverflow.com/a/2714110/
-test: tests
-tests: | remove extend_cflags $(BINDIR)/$(TARGET) clear_screen
-	$(BINDIR)/$(TARGET) $(ARGS) $(FIXED_ARGS)
