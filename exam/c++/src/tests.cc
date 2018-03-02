@@ -26,7 +26,7 @@ TEST_CASE("insert, size+traversal_size and clear methods") {
     DEBUG_MSG("is left set? " << (bool)tree.get_root()->left);
     DEBUG_MSG("is right set? " << (bool)tree.get_root()->right);
 
-    DEBUG_MSG("root key=" << tree.get_root()->key() << ", value=" << tree.get_root()->value());
+    DEBUG_MSG("root key=" << tree.get_root()->key() << ", value=" << tree.get_root()->val());
     REQUIRE(tree.get_root()->key() == key);
 
     SUBCASE("test more insertions increase key") {

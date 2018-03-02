@@ -141,11 +141,13 @@ bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
         parent_node->_pair = std::pair<K, V>(node_to_insert->key(), node_to_insert->val());
         return true;
     } else if (_compare(parent_node->key(), node_to_insert->key())) {
-        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << pair.second << "} at left");
+        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << node_to_insert->val()
+                                 << "} at left");
         parent_node->left = std::move(node_to_insert);
         parent_node->left->_parent = parent_node;
     } else {
-        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << pair.second << "} at right");
+        DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << node_to_insert->val()
+                                 << "} at right");
         parent_node->right = std::move(node_to_insert);
         parent_node->right->_parent = parent_node;
     }
@@ -227,8 +229,6 @@ std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
     if (node_to_erase == nullptr)
         throw KeyNotFound{};
 
-    // print();
-
     std::unique_ptr<Node> temp_node;
 
     // We are removing the root node
@@ -243,34 +243,17 @@ std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
     _size--;
 
     if (temp_node->left) {
-        // temp_left = std::move(node_to_erase->left);
         insert(std::move(temp_node->left));
         _size--;
     }
 
     if (temp_node->right) {
-        // temp_right = std::move(node_to_erase->right);
         insert(std::move(temp_node->right));
         _size--;
     }
 
     std::pair<K, V> pair_to_pop = temp_node->_pair;
 
-    // std::cout << temp_left.get();
-    // temp_left->_parent = node_to_erase->_parent;
-
-    // Always attach the left child in the place of the parent, and then make the tree insert the
-    // right child at the right place. This deletes node_to_erase since it is a unique_ptr.
-
-    /*
-        if (node_to_erase->_parent->left->key() == node_to_erase->key())
-            node_to_erase->_parent->left = std::move(temp_left);
-        else
-            node_to_erase->_parent->right = std::move(temp_left);
-
-        if (temp_right)
-            insert(std::move(temp_right));
-    */
     return pair_to_pop;
 }
 
