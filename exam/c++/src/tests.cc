@@ -233,6 +233,12 @@ TEST_CASE("iterator_implementation_2") {
     }
 }
 
+TEST_CASE("iterator_implementation_tricky") {
+    BTree<int, float, std::less<int>> tree;
+
+    CHECK((tree.begin() == tree.end()));
+}
+
 TEST_CASE("const_iterator implementation") {
     BTree<int, float, std::less<int>> tree;
 
@@ -256,16 +262,37 @@ TEST_CASE("const_iterator implementation") {
 
 TEST_CASE("print iterator") {
     BTree<int, float, std::less<int>> tree;
-
-    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
     float value = 3.14;
 
-    for (int i = 0; i < 15; i++) {
-        tree.insert(keys[i], value);
+    SUBCASE("single element") {
+        std::cout << std::endl;
+        tree.insert(14, value);
+        tree.print();
     }
 
-    std::cout << "Testing the printing function: ";
-    tree.print();
+    SUBCASE("two elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.print();
+    }
+
+    SUBCASE("three elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.insert(15, value);
+        tree.print();
+    }
+
+    SUBCASE("multiple elements") {
+        int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
+
+        for (int i = 0; i < 15; i++) {
+            tree.insert(keys[i], value);
+        }
+
+        std::cout << "\nTesting the printing function: ";
+        tree.print();
+    }
 }
 
 TEST_CASE("find method with iterator") {
