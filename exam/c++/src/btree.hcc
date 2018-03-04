@@ -1,5 +1,5 @@
 template <typename K, typename V, typename cmp>
-void BTree<K, V, cmp>::print() {
+void BTree<K, V, cmp>::print() const {
     iterator it = begin();
 
     std::cout << "{";
@@ -17,7 +17,7 @@ void BTree<K, V, cmp>::print() {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(K key) {
+typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K &key) const {
     if (!root)
         return nullptr;
 
@@ -89,21 +89,20 @@ bool BTree<K, V, cmp>::is_balanced() {
 }
 
 template <typename K, typename V, typename cmp>
-unsigned int BTree<K, V, cmp>::height() {
+unsigned int BTree<K, V, cmp>::height() const {
+    if (not root)
+        return 0;
     return height(root.get());
 }
 
 template <typename K, typename V, typename cmp>
-unsigned int BTree<K, V, cmp>::height(Node *root) {
+unsigned int BTree<K, V, cmp>::height(Node *root) const {
     unsigned int left_children, right_children;
 
-    if (root) {
-        left_children = root->left ? height(root->left.get()) : 0;
-        right_children = root->right ? height(root->right.get()) : 0;
+    left_children = root->left ? height(root->left.get()) : 0;
+    right_children = root->right ? height(root->right.get()) : 0;
 
-        return std::max(left_children, right_children) + 1;
-    }
-    return 0;
+    return std::max(left_children, right_children) + 1;
 }
 
 template <typename K, typename V, typename cmp>
@@ -137,9 +136,9 @@ bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
     // Now we reached the bottom part of the tree, following one of the branches.
     // `parent_node` is now a pointer to the last valid node.
     if (parent_node->key() == node_to_insert->key()) {
-        // parent_node->_pair = node_to_insert->_pair;
         parent_node->_pair = std::pair<K, V>(node_to_insert->key(), node_to_insert->val());
         return true;
+
     } else if (_compare(parent_node->key(), node_to_insert->key())) {
         DEBUG_MSG("inserting: {" << node_to_insert->key() << ": " << node_to_insert->val()
                                  << "} at left");
@@ -166,7 +165,7 @@ bool BTree<K, V, cmp>::clear() {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
+typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(const K &key) const {
     Node *temp_iter = _traverse_to_closest(key);
 
     if (temp_iter == nullptr)
@@ -181,11 +180,6 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(K key) {
         DEBUG_MSG("no node exists with the given key, returning a nullptr");
         return nullptr;
     }
-}
-
-template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::iterator BTree<K, V, cmp>::find(K key) {
-    return iterator{this, _find(key)};
 }
 
 template <typename K, typename V, typename cmp>
@@ -228,7 +222,7 @@ typename BTree<K, V, cmp>::iterator &BTree<K, V, cmp>::iterator::operator++() {
 }
 
 template <typename K, typename V, typename cmp>
-std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
+std::pair<K, V> BTree<K, V, cmp>::erase(const K &key) {
     Node *node_to_erase = _find(key);
     if (node_to_erase == nullptr)
         throw KeyNotFound{};
@@ -262,7 +256,7 @@ std::pair<K, V> BTree<K, V, cmp>::erase(K key) {
 }
 
 template <typename K, typename V, typename cmp>
-const V &BTree<K, V, cmp>::operator[](const K &key) {
+V &BTree<K, V, cmp>::operator[](const K &key) {
     Node *temp_node = _find(key);
     if (temp_node)
         return temp_node->val();
@@ -270,4 +264,9 @@ const V &BTree<K, V, cmp>::operator[](const K &key) {
     std::unique_ptr<Node> to_insert{new Node(std::pair<K, V>(key, V{}))};
     insert(std::move(to_insert));
     return to_insert->val();
+}
+
+template <typename K, typename V, typename cmp>
+const V &BTree<K, V, cmp>::operator[](const K &key) const {
+    return operator[](key);
 }

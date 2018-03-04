@@ -46,7 +46,7 @@ valgrind: | clean extend_cflags $(BINDIR)/$(TARGET) clear_screen
 .PHONY: clean
 clean:
 	@$(rm) $(BINDIR)/$(TARGET) $(OBJECTS)
-	@echo "Cleanup complete!"
+	@echo -e "Cleanup complete!\n"
 
 clear_screen:
 	@clear
