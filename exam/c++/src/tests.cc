@@ -406,7 +406,7 @@ TEST_CASE("square brackets operator") {
     }
 }
 
-TEST_CASE("semantics") {
+TEST_CASE("copy/move semantics") {
     BTree<int, float, std::less<int>> tree;
     int keys[] = {9, 14, 4};
     for (int i = 0; i < 3; i++)
@@ -449,6 +449,21 @@ TEST_CASE("semantics") {
         CHECK(tree2.size() == size_before);
         CHECK(tree.size() == 0);
     }
+}
+
+TEST_CASE("height method") {
+    BTree<int, float, std::less<int>> tree;
+    int keys[] = {9, 14, 4};
+    for (int i = 0; i < 3; i++)
+        tree.insert(keys[i], keys[i]);
+
+    CHECK(tree.height() == 2);
+
+    int keys2[] = {2, 1, 10, 20};
+    for (int i = 0; i < 4; i++)
+        tree.insert(keys2[i], keys2[i]);
+
+    CHECK(tree.height() == 4);
 }
 
 #endif
