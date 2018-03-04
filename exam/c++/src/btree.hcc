@@ -23,7 +23,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K 
 
     Node *temp_iter = root.get();
 
-    if (temp_iter->key() == key)
+    if (_equal_compare(temp_iter->key(), key))
         return temp_iter;
     bool go_left = _compare(temp_iter->key(), key);
 
@@ -41,7 +41,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K 
             temp_iter = temp_iter->right.get();
         }
 
-        if (temp_iter->key() == key)
+        if (_equal_compare(temp_iter->key(), key))
             return temp_iter;
 
         go_left = _compare(temp_iter->key(), key);
@@ -114,7 +114,7 @@ bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
 
     // Now we reached the bottom part of the tree, following one of the branches.
     // `parent_node` is now a pointer to the last valid node.
-    if (parent_node->key() == node_to_insert->key()) {
+    if (_equal_compare(parent_node->key(), node_to_insert->key())) {
         parent_node->val() = node_to_insert->val();
         return true;
     }
@@ -153,7 +153,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(const K &key) const {
 
     DEBUG_MSG("reached node temp_iter {" << temp_iter->key() << ": " << temp_iter->val() << "}");
 
-    if (temp_iter->key() == key) {
+    if (_equal_compare(temp_iter->key(), key)) {
         DEBUG_MSG("the node found has the same key we are searching for, returning it");
         return temp_iter;
     } else {
@@ -213,7 +213,7 @@ std::pair<K, V> BTree<K, V, cmp>::erase(const K &key) {
     if (node_to_erase->_parent == nullptr)
         temp_node = std::move(root);
 
-    else if (node_to_erase->_parent->left->key() == node_to_erase->key())
+    else if (_equal_compare(node_to_erase->_parent->left->key(), node_to_erase->key()))
         temp_node = std::move(node_to_erase->_parent->left);
     else
         temp_node = std::move(node_to_erase->_parent->right);

@@ -22,8 +22,7 @@ TEST_CASE("insert, size+traversal_size and clear methods") {
     REQUIRE(tree.size() == 1);
     REQUIRE(tree.traversal_size() == 1);
 
-    DEBUG_MSG(std::boolalpha);
-    DEBUG_MSG("is left set? " << (bool)tree.get_root()->left);
+    DEBUG_MSG(std::boolalpha << "is left set? " << (bool)tree.get_root()->left);
     DEBUG_MSG("is right set? " << (bool)tree.get_root()->right);
 
     DEBUG_MSG("root key=" << tree.get_root()->key() << ", value=" << tree.get_root()->val());
@@ -271,7 +270,7 @@ TEST_CASE("iterators: changing values") {
     tree.insert(43, 3.14);
     tree.insert(41, 3.14);
 
-    float v = tree[42];
+    float v{tree[42]};
     std::cout << "v: " << v << std::endl;
     v++;
     CHECK(v == tree[42]);

@@ -36,6 +36,10 @@ class BTree {
 
     bool _compare(const K &key1, const K &key2) const { return !comparator(key1, key2); }
 
+    bool _equal_compare(const K &key1, const K &key2) const {
+        return (_compare(key1, key2) && _compare(key2, key1));
+    }
+
     Node *_traverse_to_closest(const K &key) const;
 
     // For our convenience, we create a find version that returns a Node*, which can be used in
@@ -83,8 +87,8 @@ class BTree {
     class iterator;
     class const_iterator;
     iterator begin() { return iterator{this}; }
-    const_iterator begin() const { return cbegin(); }
     iterator end() { return iterator{this, nullptr}; }
+    const_iterator begin() const { return cbegin(); }
     const_iterator end() const { return cend(); }
 
     const_iterator cbegin() const { return const_iterator{this}; }
@@ -128,8 +132,8 @@ class BTree {
     }
 
 #ifdef DEBUG
-    unsigned int traversal_size() { return (root) ? root->traverse() : 0; };
-    Node *_find_public(K key) { return _find(key); }
+    unsigned int traversal_size() const { return (root) ? root->traverse() : 0; };
+    Node *_find_public(const K key) const { return _find(key); }
     Node *get_root() { return root.get(); }
 #endif
 };
