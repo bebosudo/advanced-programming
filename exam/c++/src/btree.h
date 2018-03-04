@@ -1,11 +1,12 @@
 #ifndef __BTREE_H__
 #define __BTREE_H__
 
+#include <cmath>
 #include <functional>  // std::less
+#include <iterator>    // needed to derive from std::iterator
+#include <iostream>
 #include <memory>
 #include <utility>
-#include <iostream>
-#include <cmath>
 
 // #define VERBOSE
 
@@ -42,10 +43,11 @@ class BTree {
     Node *_find(const K &key) const;
 
     bool insert(std::unique_ptr<Node> node_to_insert);
+
     unsigned int height(Node *root) const;
 
     void insert_recursive(Node *current, Node *parent) {
-        std::unique_ptr<Node> temp{new Node(current->_pair)};
+        std::unique_ptr<Node> temp{new Node(current->key(), current->val())};
         temp->_parent = parent;
         insert(std::move(temp));
 
@@ -53,40 +55,47 @@ class BTree {
             insert_recursive(current->left.get(), current);
         if (current->right)
             insert_recursive(current->right.get(), current);
-    };
+    }
 
    public:
     BTree(cmp op = cmp{}) : comparator{op} {};
 
-    unsigned int size() const { return _size; };
+    unsigned int size() const { return _size; }
 
-    bool insert(const K &key, const V &value);
-    bool insert(const std::pair<K, V> &pair);
+    bool insert(const K &key, const V &value) {
+        return insert(std::unique_ptr<Node>{new Node(key, value)});
+    };
+
     void print() const;
     bool clear();
     void balance();
 
-    unsigned int height() const;
+    unsigned int height() const {
+        if (not root)
+            return 0;
+        return height(root.get());
+    }
+
     // unsigned int height() const { return height() <= std::ceil(std::log2(_size)); }
-    bool is_balanced();
+    bool is_balanced() { return height() <= std::ceil(std::log2(_size)); };
     // bool is_balanced() const { return height(root.get()); };
 
     class iterator;
     class const_iterator;
-    iterator begin() { return iterator{this}; };
-    const_iterator begin() const { return cbegin(); };
-    iterator end() { return iterator{this, nullptr}; };
-    const_iterator end() const { return cend(); };
+    iterator begin() { return iterator{this}; }
+    const_iterator begin() const { return cbegin(); }
+    iterator end() { return iterator{this, nullptr}; }
+    const_iterator end() const { return cend(); }
 
-    const_iterator cbegin() const { return const_iterator{this}; };
-    const_iterator cend() const { return const_iterator{this, nullptr}; };
+    const_iterator cbegin() const { return const_iterator{this}; }
+    const_iterator cend() const { return const_iterator{this, nullptr}; }
 
-    iterator find(const K &key) const { return iterator{this, _find(key)}; };
+    iterator find(const K &key) const { return iterator{this, _find(key)}; }
     std::pair<K, V> erase(const K &key);
 
     // Provide two different versions to access the value: rw and ro.
     V &operator[](const K &key);
-    const V &operator[](const K &key) const;
+    const V &operator[](const K &key) const { return operator[](key); }
 
     /* copy ctor */
     BTree(const BTree &other) : _size{0}, comparator{other.comparator} {
@@ -128,17 +137,22 @@ class BTree {
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
    public:
-    std::pair<K, V> _pair;
+    // std::pair<K, V> _pair;
+    const K _key;
+    V _val;
     Node *_parent;
     std::unique_ptr<BTree::Node> left, right;
 
-    Node(std::pair<K, V> pair, Node *parent = nullptr) : _pair{pair}, _parent{parent} {};
+    // Node(std::pair<K, V> pair, Node *parent = nullptr) : _pair{pair}, _parent{parent} {};
+    Node(const K &key, const V &val, Node *parent = nullptr)
+        : _key{key}, _val{val}, _parent{parent} {};
 
-    const K &key() const { return _pair.first; }
+    const std::pair<K, V> pair() const { return std::make_pair(_key, _val); }
+    const K &key() const { return _key; }
 
     // rw and ro versions.
-    V &val() { return _pair.second; }
-    const V &val() const { return _pair.second; }
+    V &val() { return _val; }
+    const V &val() const { return val(); }
 
 #ifdef DEBUG
     unsigned int traverse() {
@@ -166,8 +180,7 @@ class BTree<K, V, cmp>::Node {
 };
 
 template <typename K, typename V, typename cmp>
-class BTree<K, V, cmp>::iterator {
-   protected:
+class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_tag, K> {
     const BTree *_tree_ref;
     Node *_current;
 
@@ -181,12 +194,15 @@ class BTree<K, V, cmp>::iterator {
     }
     // If a Node is passed to the iterator, place it to that node in the tree.
     explicit iterator(const BTree *tree_ref, Node *current)
-        : _tree_ref{tree_ref}, _current{current} {};
+        : _tree_ref{tree_ref}, _current{current} {}
 
-    // iterator(K key);
     const K &key() const { return _current->key(); }
+    V &val() { return _current->val(); }
     const V &val() const { return _current->val(); }
-    const std::pair<K, V> pair() const { return _current->_pair; }
+
+    const std::pair<K, V> pair() const { return _current->pair(); }
+
+    V &operator*() const { return _current->val(); }
 
     // ++it
     iterator &operator++();
@@ -210,8 +226,8 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
     explicit const_iterator(const BTree *tree_ref) : iterator{tree_ref} {};
     explicit const_iterator(const BTree *tree_ref, Node *current) : iterator{tree_ref, current} {}
 
+    const std::pair<K, V> &operator*() const { return BTree<K, V, cmp>::iterator::operator*(); }
     const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
-
     const V &val() const { return BTree<K, V, cmp>::iterator::val(); }
 };
 

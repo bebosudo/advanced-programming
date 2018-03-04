@@ -101,16 +101,16 @@ TEST_CASE("_find private method (exposed by `_find_public` when in debug mode)")
 
     for (int i = 0; i < 20; ++i) {
         tree.insert(keys[i], value);
-        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+        REQUIRE(tree._find_public(keys[i])->val() == value);
     }
 
     // Retrieve all the past keys.
     for (int i = 0; i < 20; ++i) {
-        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+        REQUIRE(tree._find_public(keys[i])->val() == value);
     }
 
     // Test the root retrieval.
-    REQUIRE(tree._find_public(keys[0])->_pair.second == tree.get_root()->val());
+    REQUIRE(tree._find_public(keys[0])->val() == tree.get_root()->val());
 
     // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
@@ -260,6 +260,31 @@ TEST_CASE("const_iterator implementation") {
             CHECK(std::less_equal<int>()(last_element_seen, cit.key()));
             last_element_seen = cit.key();
         }
+    }
+}
+
+TEST_CASE("iterators: changing values") {
+    BTree<int, float, std::less<int>> tree;
+    int last_element_seen = 41;
+
+    tree.insert(42, 2.14);
+    tree.insert(43, 3.14);
+    tree.insert(41, 3.14);
+
+    float v = tree[42];
+    std::cout << "v: " << v << std::endl;
+    v++;
+    CHECK(v == tree[42]);
+
+    for (BTree<int, float, std::less<int>>::iterator it = tree.begin(); it != tree.end(); ++it) {
+        if (it.key() == 42) {
+            float val = *it;
+            ++val;
+            CHECK(it.val() == val);
+        }
+
+        CHECK(std::less_equal<int>()(last_element_seen, it.key()));
+        last_element_seen = it.key();
     }
 }
 
