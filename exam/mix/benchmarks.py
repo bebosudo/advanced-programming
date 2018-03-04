@@ -20,17 +20,22 @@ def execute_benchmark(tree, rep):
 
     print("Size: ", len(tree))
     print("Height: ", tree.height())
-    print("Find benchmark: ", end - start)
+    print("Time elapsed: ", end - start)
     
 
 if __name__ == "__main__":
     tree = bestbst.BTree()
-    for _ in range(100000000):
+    for _ in range(100000):
         insert_once(tree)
 
     rep = 1000000
-    
+  
+    print("Before balancing...") 
     execute_benchmark(tree, rep)
+    
+    print("\n===== Balancing =====\n")
     tree.balance()
+
+    print("After balancing...")
     execute_benchmark(tree, rep)
 
