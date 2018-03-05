@@ -1,3 +1,6 @@
 [submodule "exam/c++/doctest"]
 	path = exam/c++/doctest
 	url = git@github.com:onqtam/doctest.git
+[submodule "exam/mix/pybind11"]
+	path = exam/mix/pybind11
+	url = git@github.com:pybind/pybind11.git
