@@ -9,7 +9,7 @@
 
 #ifdef DEBUG
 
-TEST_CASE("insert, size+traversal_size and clear methods") {
+TEST_CASE("insert and size+traversal_size and clear methods") {
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
@@ -262,28 +262,27 @@ TEST_CASE("const_iterator implementation") {
     }
 }
 
-TEST_CASE("iterators: changing values") {
+TEST_CASE("iterators: changing the value") {
     BTree<int, float, std::less<int>> tree;
-    int last_element_seen = 41;
 
-    tree.insert(42, 2.14);
+    tree.insert(42, 3.14);
     tree.insert(43, 3.14);
     tree.insert(41, 3.14);
+    float val;
+    BTree<int, float, std::less<int>>::iterator it = tree.begin();
 
-    float v{tree[42]};
-    std::cout << "v: " << v << std::endl;
-    v++;
-    CHECK(v == tree[42]);
-
-    for (BTree<int, float, std::less<int>>::iterator it = tree.begin(); it != tree.end(); ++it) {
-        if (it.key() == 42) {
-            float val = *it;
-            ++val;
+    SUBCASE("use the dereferenced iterator") {
+        for (; it != tree.end(); ++it) {
+            val = ++(*it);
             CHECK(it.val() == val);
         }
+    }
 
-        CHECK(std::less_equal<int>()(last_element_seen, it.key()));
-        last_element_seen = it.key();
+    SUBCASE("use the .val() method") {
+        for (; it != tree.end(); ++it) {
+            val = ++(it.val());
+            CHECK(it.val() == val);
+        }
     }
 }
 
