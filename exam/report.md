@@ -13,9 +13,12 @@ In the Python part it was required to write a `class PostcardList` that can mana
 
 We built the `BTree` class following the so called ["test-driven development"](https://en.wikipedia.org/wiki/Test-driven_development) approach: this means that for every method of the class that we are exposing, we have created some test cases to validate and test all the components (units) of the code. We used the C/C++ library [`doctest`](https://github.com/onqtam/doctest), "The fastest feature-rich C++98/C++11 single-header testing framework for unit tests and TDD", which is essentially a powerful collection of macros to define tests in a very easy and "fun" way (the initial setup time took around 15 minutes), and which improved the overall programming experience and time requested.
 
-To install doctest and compile the code, in the `exam/c++/` directory type:
+To install doctest, clone the repo and type:
 
-    $ git submodule add git@github.com:onqtam/doctest.git
+    $ git submodule init
+    $ git submodule update
+
+The preceding commands setup and clone the submodules/sub-repository needed: both `doctest` and `pybind11`, which is needed in the `mix` section below.
 
 This should create a directory structure like the following:
 
@@ -47,17 +50,15 @@ Moreover, we have also added some more unit tests to those already provided, to 
 
 ## Mixing: C++ ♥ Python !
 
-In order to mix C++ with Python we used [`pybind11`](https://github.com/pybind/pybind11/), an lightweight open-source framework, which made the integration process smooth, without the hassles of installing a gigantic framework such as Boost.
+In order to mix C++ with Python we used [`pybind11`](https://github.com/pybind/pybind11/), a lightweight open-source framework, which made the integration process smooth, without the hassles of installing a gigantic framework such as Boost.
 
-Python3 was chosen, since is the most developed and active version nowadays: to install `pybind11` type:
+Python3 was chosen, since is the most developed and active version nowadays.
 
-    $ pip3 install pybind11
+We suggest to use a virtualenv (the official [documentation](https://virtualenv.pypa.io/en/stable/installation/) is available); to install `pybind11` type:
 
-Add `--user` if you do not want to install the library only for your user.
-
-Moreover, the `pybind` headers are requested, and we installed those distributed in Ubuntu, which can be installed with:
-
-    $ sudo apt install pybind11-dev
+    $ pip install pybind11
 
 
-By running a `make` in the directory `exam/mix/` you can build the `.so` library used to perform the benchmarks, available as a script in `exam/mix/benchmarks.py`: this show the difference before and after executing a re-balancing on the three, completely done in Python!
+Moreover, the `pybind` headers are requested, and we installed them with the submodule update in the `C++ chapther` above.
+
+By running a `make` in the directory `exam/mix/` you can build the `.so` library; which is available as a script in `exam/mix/benchmarks.py`: this show the difference before and after executing a re-balancing on the three, completely done in Python!
