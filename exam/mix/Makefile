@@ -15,7 +15,7 @@ INCLUDES    = $(shell $(PY_VER) -m pybind11 --includes) $(shell $(PY_VER)-config
 
 default: clean $(SRC)
 	cp -r $(SRC) $(DEST)
-	$(CXX) $(CFLAGS) $(INCLUDES) $(DEST)/*.cc -o $(TARGET)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(DEST)/*.cc -o $(TARGET)
 
 clean:
 	rm -rf $(DEST) $(TARGET)

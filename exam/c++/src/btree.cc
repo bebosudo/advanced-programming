@@ -25,10 +25,9 @@ PYBIND11_MODULE(bestbst, m) {
         .def("find", &BTree<int, int>::find)
         .def("is_balanced", &BTree<int, int>::is_balanced)
         .def("balance", &BTree<int, int>::balance)
-        .def("height", py::overload_cast<>(&BTree<int, int>::height))
-
-        .def("begin", &BTree<int, int>::begin)
-        .def("end", &BTree<int, int>::end)
+        // .def("height", py::overload_cast<>(&BTree<int, int>::height))
+        // .def("begin", &BTree<int, int>::begin)
+        // .def("end", &BTree<int, int>::end)
 
         .def("__len__", &BTree<int, int>::size)
 

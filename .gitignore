@@ -15,3 +15,5 @@ __pycache__
 exam/*.sublime-*
 exam/c++/build/
 exam/c++/bin/
+
+exam/mix/src/
