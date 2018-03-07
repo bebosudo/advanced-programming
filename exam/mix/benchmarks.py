@@ -1,41 +1,44 @@
 #!/usr/bin/env python3
 
-#import timeit
 import time
-import random
+import numpy as np
 
 import bestbst
 
-random.seed(42)
+def execute():
+    print("\nStarting on a tree of height", tree.height(), "...", end='')
 
-
-def insert_once(tree):
-    tree.insert(random.randint(-10000, 10000), 1234)
-
-def execute_benchmark(tree, rep):
     start = time.process_time()
-    for _ in range(rep):
-        tree.find(random.randint(-10000, 10000))
-    end = time.process_time()
+    for i in test_set:
+        tree.find(i)
+    stop = time.process_time()
 
-    print("Size: ", len(tree))
-    print("Height: ", tree.height())
-    print("Time elapsed: ", end - start)
-    
+    print(stop - start, "s")
+
 
 if __name__ == "__main__":
-    tree = bestbst.BTree()
-    for _ in range(100000):
-        insert_once(tree)
 
-    rep = 1000000
-  
-    print("Before balancing...") 
-    execute_benchmark(tree, rep)
-    
-    print("\n===== Balancing =====\n")
+    _n_tests = 10000
+    _tree_size = 100000
+    _seed = 314
+
+    np.random.seed(_seed)
+    test_set = np.random.rand(_n_tests) * _tree_size # To get keys that actually exist
+    test_set = [int(x) for x in test_set]
+
+    print("====================================================")
+    print("== Benchmarking Binary Search Tree implementation ==")
+    print("== Tree size:", _tree_size, "      Number of tries:", _n_tests, "==")
+    print("====================================================")
+
+    print("Filling the tree...")
+
+    tree = bestbst.BTree()
+    [tree.insert(x, 0) for x in range(_tree_size)]
+
+    execute()
+
+    print("\nBalancing...")
     tree.balance()
 
-    print("After balancing...")
-    execute_benchmark(tree, rep)
-
+    execute()
