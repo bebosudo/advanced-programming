@@ -71,12 +71,16 @@ All the code to make the comparison has been written in Python thanks to the bin
 
 ![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
 
+For completeness we have also compared the timings of the same `find()` also on a degenerated tree (basically a linked list) to stress the difference in performance.
+
+![benchmarking plot 2](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark2.png "Find operation in a BST (degenerated vs balanced vs unbalanced)")
+
 It is possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this scales dramatically.
 
 From the theorical point of view, due to the structure of the balanced _BST_, it is possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
 
 #### Benchmark notes:
 
-In the timings obtained together with the professors, we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
+In the timings measured last time, we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
 
-Now the benchmark has been fixed and works properly.
+Now the benchmark has been fixed and works properly: now we simply look for elements that are guaranteed to be present into the stucture.
