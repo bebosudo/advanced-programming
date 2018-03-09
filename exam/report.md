@@ -69,12 +69,12 @@ To highlight the advantages of having a _balanced_ `BST`, we've written a simple
 
 ![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
 
-It's possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this different becomes really dramatic.
+It's possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this difference becomes really dramatic.
 
-From the theorical point of view, due to the structure of the balanced `BST`, it's possible to demostrate that the cost to make a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
+From the theorical point of view, due to the structure of the balanced `BST`, it's possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
 
 #### Benchmark notes:
 
-In the timings obtained together with the professors we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
+In the timings obtained together with the professors, we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
 
 Now the benchmark has been fixed and works properly.
