@@ -4,7 +4,7 @@
 
 The assignment was divided into two main parts: C++ and Python.
 
-In the C++ part it was required to implement a `Binary Search Tree` (_BST_ from now on), templated on the key and value, that are stored into each node, as well as a compare function that can be chosen among the standard library or being defined by the user.
+In the C++ part it was required to implement a *Binary Search Tree* (_BST_ from now on), as a templated class on the key and value, as well as the comparing function, that can be chosen among the standard library or being defined by the user.
 
 In the Python part it was required to write a `class PostcardList` that can manage some postcards (characterized by three fields: `date`, `from` and `to`). The aim was to create some methods that could allow the fast retrieve of the data querying the created class.
 
@@ -18,7 +18,7 @@ To install doctest, clone the repo and type:
     $ git submodule init
     $ git submodule update
 
-The preceding commands setup and clone the submodules/sub-repository needed: both `doctest` and `pybind11`, which is needed in the `mix` section below.
+The preceding commands setup and clone the submodules/sub-repository needed: both `doctest` and `pybind11`, which is needed in the [*mixing* section](#mixing-c-python) below.
 
 This should create a directory structure like the following:
 
@@ -50,24 +50,20 @@ Moreover, we have also added some more unit tests to those already provided, to 
 
 ## Mixing: C++ ♥ Python !
 
-In order to mix C++ with Python we used [`pybind11`](https://github.com/pybind/pybind11/), a lightweight open-source framework, which made the integration process smooth, without the hassles of installing a gigantic framework such as Boost.
+In order to mix C++ with Python we used [`pybind11`](https://github.com/pybind/pybind11/), a lightweight and open-source framework, which made the integration process smooth, without the hassles of installing a gigantic framework such as Boost.
 
 Python3 was chosen, since is the most developed and active version nowadays.
 
-We suggest to use a virtualenv (the official [documentation](https://virtualenv.pypa.io/en/stable/installation/) is available); to install `pybind11` type:
+The `pybind` headers are requested to compile the C++ code into a python module, but we have already downloaded them with the `git submodule update` in the [C++ section](#c-section) above.
 
-    $ pip install pybind11
+By running a `make` in the directory `exam/mix/` you can build the `.so` library, which is available as a script in `exam/mix/benchmarks.py`: this show the difference before and after executing a re-balancing on the three, completely done in Python!
 
-
-Moreover, the `pybind` headers are requested, and we installed them with the submodule update in the `C++ chapther` above.
-
-By running a `make` in the directory `exam/mix/` you can build the `.so` library; which is available as a script in `exam/mix/benchmarks.py`: this show the difference before and after executing a re-balancing on the three, completely done in Python!
 
 ## Benchmarking
 
 To highlight the advantages of having a _balanced_ _BST_, we have written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on the same randomly populated _BST_ before and after the `balance()` call.
 
-All the code to make the comparison has been written in Python thanks to the binding we have created for our `BTree` class.
+All the code to make the comparison has been written in Python with to the binding to our `BTree` C++ class.
 
 ![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
 
