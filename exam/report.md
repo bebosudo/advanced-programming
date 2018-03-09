@@ -77,6 +77,6 @@ From the theorical point of view, due to the structure of the balanced _BST_, it
 
 #### Benchmark notes:
 
-In the timings measured last time, we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
+In a previous version of the benchmark we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
 
 Now the benchmark has been fixed and works properly: now we simply look for elements that are guaranteed to be present into the stucture.
