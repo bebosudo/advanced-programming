@@ -62,3 +62,19 @@ We suggest to use a virtualenv (the official [documentation](https://virtualenv.
 Moreover, the `pybind` headers are requested, and we installed them with the submodule update in the `C++ chapther` above.
 
 By running a `make` in the directory `exam/mix/` you can build the `.so` library; which is available as a script in `exam/mix/benchmarks.py`: this show the difference before and after executing a re-balancing on the three, completely done in Python!
+
+## Benchmarking
+
+To highlight the advantages of having a _balanced_ `BST`, we've written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on two different structures with the same content but different organisation: a randomly populated `BST` and the same `BST` after operating the `balance()` call.
+
+![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
+
+It's possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this different becomes really dramatic.
+
+From the theorical point of view, due to the structure of the balanced `BST`, it's possible to demostrate that the cost to make a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
+
+#### Benchmark notes:
+
+In the timings obtained together with the professors we kept obtaining similar values of elapsed time in performing the same operation on the balanced and on the unbalanced tree, that behaviour was simply due to the fact that we were looking for random items. This means that the chance of having a number not present in the tree was very high and, probably, the search was interrupted already in the early nodes of the tree, leading to very short response time for both the structures.
+
+Now the benchmark has been fixed and works properly.
