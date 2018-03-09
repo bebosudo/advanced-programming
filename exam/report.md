@@ -65,13 +65,15 @@ By running a `make` in the directory `exam/mix/` you can build the `.so` library
 
 ## Benchmarking
 
-To highlight the advantages of having a _balanced_ _BST_, we've written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on two different structures with the same content but different organisation: a randomly populated _BST_ and the same _BST_ after operating the `balance()` call.
+To highlight the advantages of having a _balanced_ _BST_, we have written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on the same randomly populated _BST_ before and after the `balance()` call.
+
+All the code to make the comparison has been written in Python thanks to the binding we have created for our `BTree` class.
 
 ![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
 
-It's possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this difference becomes really dramatic.
+It is possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this scales dramatically.
 
-From the theorical point of view, due to the structure of the balanced _BST_, it's possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
+From the theorical point of view, due to the structure of the balanced _BST_, it is possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
 
 #### Benchmark notes:
 
