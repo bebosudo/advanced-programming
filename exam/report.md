@@ -4,7 +4,7 @@
 
 The assignment was divided into two main parts: C++ and Python.
 
-In the C++ part it was required to implement a `Binary Search Tree` (`BST` from now on), templated on the key and value, that are stored into each node, as well as a compare function that can be chosen among the standard library or being defined by the user.
+In the C++ part it was required to implement a `Binary Search Tree` (_BST_ from now on), templated on the key and value, that are stored into each node, as well as a compare function that can be chosen among the standard library or being defined by the user.
 
 In the Python part it was required to write a `class PostcardList` that can manage some postcards (characterized by three fields: `date`, `from` and `to`). The aim was to create some methods that could allow the fast retrieve of the data querying the created class.
 
@@ -65,13 +65,13 @@ By running a `make` in the directory `exam/mix/` you can build the `.so` library
 
 ## Benchmarking
 
-To highlight the advantages of having a _balanced_ `BST`, we've written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on two different structures with the same content but different organisation: a randomly populated `BST` and the same `BST` after operating the `balance()` call.
+To highlight the advantages of having a _balanced_ _BST_, we've written a simple benchmark. In this benchmark we measure the time spent in carrying out a given operation (in this case 10K `find` calls) on two different structures with the same content but different organisation: a randomly populated _BST_ and the same _BST_ after operating the `balance()` call.
 
 ![benchmarking plot](https://github.com/bebosudo/advanced-programming/raw/master/exam/mix/benchmark.png "Find operation in a BST (balanced vs unbalanced)")
 
 It's possible to note how much efficient is the balanced version in operating the lookups. In particular, increasing the size of the tree, this difference becomes really dramatic.
 
-From the theorical point of view, due to the structure of the balanced `BST`, it's possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
+From the theorical point of view, due to the structure of the balanced _BST_, it's possible to demostrate that the cost for making a single lookup is in the worst case `log2(N)`, where `N` is the size of the tree.
 
 #### Benchmark notes:
 
