@@ -190,11 +190,9 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
 
    public:
     // If an iterator is called only with the pointer to a tree, place it at the beginning.
-    explicit iterator(const BTree *tree_ref) : _tree_ref{tree_ref} {
+    explicit iterator(const BTree *tree_ref) : _tree_ref{tree_ref}, _current{nullptr} {
         if (_tree_ref != nullptr and _tree_ref->root)
             _current = _tree_ref->root->get_leftmost();
-        else
-            _current = nullptr;
     }
     // If a Node is passed to the iterator, place it to that node in the tree.
     explicit iterator(const BTree *tree_ref, Node *current)
@@ -218,7 +216,13 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
         return it;
     }
 
-    bool operator==(const iterator &other) { return _current == other._current; }
+    bool operator==(const iterator &other) {
+        if (not this->_current and not other._current)
+            return true;
+        if (not this->_current != not other._current)
+            return false;
+        return this->_current == other._current;
+    }
     bool operator!=(const iterator &other) { return !(*this == other); }
 };
 
@@ -230,9 +234,7 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
     explicit const_iterator(const BTree *tree_ref) : iterator{tree_ref} {};
     explicit const_iterator(const BTree *tree_ref, Node *current) : iterator{tree_ref, current} {}
 
-    const std::pair<K, V> &operator*() const { return BTree<K, V, cmp>::iterator::operator*(); }
-    const K &key() const { return BTree<K, V, cmp>::iterator::key(); }
-    const V &val() const { return BTree<K, V, cmp>::iterator::val(); }
+    const V &operator*() const { return BTree<K, V, cmp>::iterator::operator*(); }
 };
 
 #include "btree.hcc"
