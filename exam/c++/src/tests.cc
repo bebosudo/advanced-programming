@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "btree.h"
 #include "doctest.h"
+#include <numeric>  // std::accumulate
 
 // In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
 // If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the tests continue to
@@ -8,6 +9,11 @@
 // CHECKs that failed.
 
 #ifdef DEBUG
+
+template <typename num>
+struct my_comparison {
+    bool operator()(const num &a, const num &b) { return a < b; }
+};
 
 TEST_CASE("insert and size+traversal_size and clear methods") {
     BTree<int, float, std::less<int>> tree;
@@ -260,6 +266,16 @@ TEST_CASE("const_iterator implementation") {
             last_element_seen = cit.key();
         }
     }
+
+    SUBCASE("test normal iteration with auto iterator") {
+        auto cit2 = tree.cbegin();
+
+        for (; cit2 != tree.cend(); ++cit2) {
+            // We use less_equal so that the lowest number previously seen satisfies the check.
+            CHECK(std::less_equal<int>()(last_element_seen, cit2.key()));
+            last_element_seen = cit2.key();
+        }
+    }
 }
 
 TEST_CASE("iterators: changing the value") {
@@ -341,6 +357,92 @@ TEST_CASE("find method with iterator") {
     SUBCASE("key not found makes iterator go to end()") {
         BTree<int, float, std::less<int>>::iterator it = tree.find(9999999);
         CHECK((it == tree.end()));  // Parenthesis around the condition are required in these cases.
+    }
+}
+
+TEST_CASE("more thorough test on iterators") {
+    BTree<int, double, std::less<int>> tree;
+
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, n_keys = 15;
+    double sum_keys = 0;
+    for (int i = 0; i < n_keys; i++) {
+        tree.insert(keys[i], keys[i]);
+        sum_keys += keys[i];
+    }
+
+    SUBCASE("normal iterators") {
+        auto first = tree.begin(), last = tree.end();
+
+        double sum{0.0};
+
+        sum = std::accumulate(first, last, sum);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto my_f = [](decltype(*first) &a, decltype(*first) &b) -> decltype(a + b) {
+            return (b == 2.2 ? a : a + b);
+        };
+
+        sum = std::accumulate(first, last, 0.0, my_f);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto it = std::find(first, last, keys[n_keys - 1]);
+        CHECK((it != last));
+
+        std::vector<double> v(tree.size());
+
+        std::copy(first, last, v.begin());
+        double last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+
+        std::sort(v.begin(), v.end(), my_comparison<double>{});
+        last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+    }
+
+    SUBCASE("const iterators") {
+        auto first = tree.cbegin(), last = tree.cend();
+
+        double sum{0.0};
+
+        sum = std::accumulate(first, last, sum);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto my_f = [](const decltype(*first) &a, const decltype(*first) &b) -> decltype(a + b) {
+            double res = 0;
+            (b == 2.2 ? res = a : res = a + b);
+            return res;
+        };
+        sum = std::accumulate(first, last, 0.0, my_f);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto it = std::find(first, last, keys[n_keys - 1]);
+        CHECK((it != last));
+
+        std::vector<double> v(tree.size());
+
+        std::copy(first, last, v.begin());
+        double last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+
+        std::sort(v.begin(), v.end(), my_comparison<double>{});
+        last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
     }
 }
 
