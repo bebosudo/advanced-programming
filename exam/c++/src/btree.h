@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include <functional>  // std::less
-#include <iterator>    // needed to derive from std::iterator
+#include <iterator>    // to derive from std::iterator
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -34,10 +34,12 @@ class BTree {
     unsigned int _size{0};
     const cmp comparator;
 
-    bool _compare(const K &key1, const K &key2) const noexcept { return !comparator(key1, key2); }
+    bool _compare(const K &key1, const K &key2) const noexcept {
+        return not comparator(key1, key2);
+    }
 
     bool _equal_compare(const K &key1, const K &key2) const noexcept {
-        return (_compare(key1, key2) && _compare(key2, key1));
+        return (_compare(key1, key2) and _compare(key2, key1));
     }
 
     Node *_traverse_to_closest(const K &key) const noexcept;
@@ -219,11 +221,15 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
     bool operator==(const iterator &other) const noexcept {
         if (this->_current == nullptr and other._current == nullptr)
             return true;
-        if (not this->_current != not other._current)
+
+        // clang-format off
+        if ((bool)this->_current xor (bool)other._current)
             return false;
+        // clang-format on
+
         return this->_current == other._current;
     }
-    bool operator!=(const iterator &other) const noexcept { return !(*this == other); }
+    bool operator!=(const iterator &other) const noexcept { return not(*this == other); }
 };
 
 template <typename K, typename V, typename cmp>

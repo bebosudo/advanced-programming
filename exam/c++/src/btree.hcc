@@ -19,7 +19,7 @@ void BTree<K, V, cmp>::print() const noexcept {
 template <typename K, typename V, typename cmp>
 typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K &key) const
     noexcept {
-    if (!root)
+    if (not root)
         return nullptr;
 
     Node *temp_iter = root.get();
@@ -33,7 +33,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K 
     DEBUG_MSG("given the key: " << key << ", Imma look for the closest node");
     DEBUG_MSG("go_left is " << go_left << ", then Imma go " << (go_left ? "left" : "right"));
 
-    while ((go_left and temp_iter->left) or (!go_left and temp_iter->right)) {
+    while ((go_left and temp_iter->left) or (not go_left and temp_iter->right)) {
         if (go_left) {
             DEBUG_MSG("since go_left is true, Imma go left");
             temp_iter = temp_iter->left.get();
@@ -58,7 +58,7 @@ void BTree<K, V, cmp>::balance() noexcept {
 
     std::pair<K, V> temp_array[_size];
 
-    if (!root)
+    if (not root)
         return;
 
     for (iterator it = begin(); it != end(); it++) {
@@ -99,7 +99,7 @@ bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) noexcept {
     DEBUG_MSG("inserting pair: {" << node_to_insert->key() << ": " << node_to_insert->val() << "}");
 
     // Basic case, the tree is empty, so the new pair becomes the root object.
-    if (!root) {
+    if (not root) {
         DEBUG_MSG("no need to go more down, inserting as new root");
         root = std::move(node_to_insert);
         _size++;
