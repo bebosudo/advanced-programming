@@ -34,23 +34,23 @@ class BTree {
     unsigned int _size{0};
     const cmp comparator;
 
-    bool _compare(const K &key1, const K &key2) const { return !comparator(key1, key2); }
+    bool _compare(const K &key1, const K &key2) const noexcept { return !comparator(key1, key2); }
 
-    bool _equal_compare(const K &key1, const K &key2) const {
+    bool _equal_compare(const K &key1, const K &key2) const noexcept {
         return (_compare(key1, key2) && _compare(key2, key1));
     }
 
-    Node *_traverse_to_closest(const K &key) const;
+    Node *_traverse_to_closest(const K &key) const noexcept;
 
     // For our convenience, we create a find version that returns a Node*, which can be used in
     // many other methods.
-    Node *_find(const K &key) const;
+    Node *_find(const K &key) const noexcept;
 
-    bool insert(std::unique_ptr<Node> node_to_insert);
+    bool insert(std::unique_ptr<Node> node_to_insert) noexcept;
 
-    unsigned int height(Node *root) const;
+    unsigned int height(Node *root) const noexcept;
 
-    void insert_recursive(Node *current, Node *parent) {
+    void insert_recursive(Node *current, Node *parent) noexcept {
         std::unique_ptr<Node> temp{new Node(current->key(), current->val())};
         temp->_parent = parent;
         insert(std::move(temp));
@@ -62,47 +62,47 @@ class BTree {
     }
 
    public:
-    BTree(cmp op = cmp{}) : comparator{op} {};
+    BTree(cmp op = cmp{}) noexcept : comparator{op} {};
 
-    const unsigned int &size() const { return _size; }
+    const unsigned int &size() const noexcept { return _size; }
 
-    bool insert(const K &key, const V &value) {
+    bool insert(const K &key, const V &value) noexcept {
         return insert(std::unique_ptr<Node>{new Node(key, value)});
     };
 
-    void print() const;
-    bool clear();
-    void balance();
+    void print() const noexcept;
+    bool clear() noexcept;
+    void balance() noexcept;
 
-    unsigned int height() const {
+    unsigned int height() const noexcept {
         if (not root)
             return 0;
         return height(root.get());
     }
 
     // unsigned int height() const { return height() <= std::ceil(std::log2(_size)); }
-    bool is_balanced() const { return height() <= std::ceil(std::log2(_size)); };
+    bool is_balanced() const noexcept { return height() <= std::ceil(std::log2(_size)); };
     // bool is_balanced() const { return height(root.get()); };
 
     class iterator;
     class const_iterator;
-    iterator begin() { return iterator{this}; }
-    iterator end() { return iterator{this, nullptr}; }
-    const_iterator begin() const { return cbegin(); }
-    const_iterator end() const { return cend(); }
+    iterator begin() noexcept { return iterator{this}; }
+    iterator end() noexcept { return iterator{this, nullptr}; }
+    const_iterator begin() const noexcept { return cbegin(); }
+    const_iterator end() const noexcept { return cend(); }
 
-    const_iterator cbegin() const { return const_iterator{this}; }
-    const_iterator cend() const { return const_iterator{this, nullptr}; }
+    const_iterator cbegin() const noexcept { return const_iterator{this}; }
+    const_iterator cend() const noexcept { return const_iterator{this, nullptr}; }
 
-    iterator find(const K &key) const { return iterator{this, _find(key)}; }
+    iterator find(const K &key) const noexcept { return iterator{this, _find(key)}; }
     std::pair<K, V> erase(const K &key);
 
     // Provide two different versions to access the value: rw and ro.
-    V &operator[](const K &key);
-    const V &operator[](const K &key) const { return operator[](key); }
+    V &operator[](const K &key) noexcept;
+    const V &operator[](const K &key) const noexcept { return operator[](key); }
 
     /* copy ctor */
-    BTree(const BTree &other) : _size{0}, comparator{other.comparator} {
+    BTree(const BTree &other) noexcept : _size{0}, comparator{other.comparator} {
         insert_recursive(other.root.get(), nullptr);
     }
 
@@ -113,7 +113,7 @@ class BTree {
     }
 
     /* copy assignment operator */
-    BTree &operator=(const BTree &other) {
+    BTree &operator=(const BTree &other) noexcept {
         BTree tmp(other);        // re-use copy-constructor
         *this = std::move(tmp);  // re-use move-assignment
         return *this;
@@ -132,9 +132,9 @@ class BTree {
     }
 
 #ifdef DEBUG
-    unsigned int traversal_size() const { return (root) ? root->traverse() : 0; };
-    Node *_find_public(const K key) const { return _find(key); }
-    Node *get_root() const { return root.get(); }
+    unsigned int traversal_size() const noexcept { return (root) ? root->traverse() : 0; };
+    Node *_find_public(const K key) const noexcept { return _find(key); }
+    Node *get_root() const noexcept { return root.get(); }
 #endif
 };
 
@@ -147,18 +147,18 @@ class BTree<K, V, cmp>::Node {
     std::unique_ptr<BTree::Node> left, right;
 
     // Node(std::pair<K, V> pair, Node *parent = nullptr) : _pair{pair}, _parent{parent} {};
-    Node(const K &key, const V &val, Node *parent = nullptr)
+    Node(const K &key, const V &val, Node *parent = nullptr) noexcept
         : _key{key}, _val{val}, _parent{parent} {};
 
-    const std::pair<K, V> pair() const { return std::make_pair(_key, _val); }
-    const K &key() const { return _key; }
+    const std::pair<K, V> pair() const noexcept { return std::make_pair(_key, _val); }
+    const K &key() const noexcept { return _key; }
 
     // rw and ro versions.
-    V &val() { return _val; }
-    const V &val() const { return val(); }
+    V &val() noexcept { return _val; }
+    const V &val() const noexcept { return val(); }
 
 #ifdef DEBUG
-    unsigned int traverse() const {
+    unsigned int traverse() const noexcept {
         unsigned int sub_nodes = 1;
 
         if (left)
@@ -170,7 +170,7 @@ class BTree<K, V, cmp>::Node {
     };
 #endif
 
-    Node *get_leftmost() {
+    Node *get_leftmost() noexcept {
         if (not left)
             return this;
 
@@ -190,40 +190,40 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
 
    public:
     // If an iterator is called only with the pointer to a tree, place it at the beginning.
-    explicit iterator(const BTree *tree_ref) : _tree_ref{tree_ref}, _current{nullptr} {
+    explicit iterator(const BTree *tree_ref) noexcept : _tree_ref{tree_ref}, _current{nullptr} {
         if (_tree_ref != nullptr and _tree_ref->root)
             _current = _tree_ref->root->get_leftmost();
     }
     // If a Node is passed to the iterator, place it to that node in the tree.
-    explicit iterator(const BTree *tree_ref, Node *current)
+    explicit iterator(const BTree *tree_ref, Node *current) noexcept
         : _tree_ref{tree_ref}, _current{current} {}
 
-    const K &key() const { return _current->key(); }
-    V &val() { return _current->val(); }
-    const V &val() const { return _current->val(); }
+    const K &key() const noexcept { return _current->key(); }
+    V &val() noexcept { return _current->val(); }
+    const V &val() const noexcept { return _current->val(); }
 
-    const std::pair<K, V> pair() const { return _current->pair(); }
+    const std::pair<K, V> pair() const noexcept { return _current->pair(); }
 
-    V &operator*() const { return _current->val(); }
+    V &operator*() const noexcept { return _current->val(); }
 
     // ++it
-    iterator &operator++();
+    iterator &operator++() noexcept;
 
     // it++
-    iterator operator++(int) {
+    iterator operator++(int)noexcept {
         iterator it{_tree_ref, _current};
         ++(*this);
         return it;
     }
 
-    bool operator==(const iterator &other) const {
-        if (not this->_current and not other._current)
+    bool operator==(const iterator &other) const noexcept {
+        if (this->_current == nullptr and other._current == nullptr)
             return true;
         if (not this->_current != not other._current)
             return false;
         return this->_current == other._current;
     }
-    bool operator!=(const iterator &other) const { return !(*this == other); }
+    bool operator!=(const iterator &other) const noexcept { return !(*this == other); }
 };
 
 template <typename K, typename V, typename cmp>
@@ -231,10 +231,11 @@ class BTree<K, V, cmp>::const_iterator : public BTree<K, V, cmp>::iterator {
    public:
     // using iterator::iterator;
 
-    explicit const_iterator(const BTree *tree_ref) : iterator{tree_ref} {};
-    explicit const_iterator(const BTree *tree_ref, Node *current) : iterator{tree_ref, current} {}
+    explicit const_iterator(const BTree *tree_ref) noexcept : iterator{tree_ref} {};
+    explicit const_iterator(const BTree *tree_ref, Node *current) noexcept
+        : iterator{tree_ref, current} {}
 
-    const V &operator*() const { return BTree<K, V, cmp>::iterator::operator*(); }
+    const V &operator*() const noexcept { return BTree<K, V, cmp>::iterator::operator*(); }
 };
 
 #include "btree.hcc"

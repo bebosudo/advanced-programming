@@ -1,5 +1,5 @@
 template <typename K, typename V, typename cmp>
-void BTree<K, V, cmp>::print() const {
+void BTree<K, V, cmp>::print() const noexcept {
     iterator it = begin();
 
     std::cout << "{";
@@ -17,7 +17,8 @@ void BTree<K, V, cmp>::print() const {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K &key) const {
+typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K &key) const
+    noexcept {
     if (!root)
         return nullptr;
 
@@ -51,7 +52,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_traverse_to_closest(const K 
 }
 
 template <typename K, typename V, typename cmp>
-void BTree<K, V, cmp>::balance() {
+void BTree<K, V, cmp>::balance() noexcept {
     int pos{0}, steps, denominator;
     unsigned int len{_size};
 
@@ -84,7 +85,7 @@ void BTree<K, V, cmp>::balance() {
 }
 
 template <typename K, typename V, typename cmp>
-unsigned int BTree<K, V, cmp>::height(Node *root) const {
+unsigned int BTree<K, V, cmp>::height(Node *root) const noexcept {
     unsigned int left_children, right_children;
 
     left_children = root->left ? height(root->left.get()) : 0;
@@ -94,7 +95,7 @@ unsigned int BTree<K, V, cmp>::height(Node *root) const {
 }
 
 template <typename K, typename V, typename cmp>
-bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
+bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) noexcept {
     DEBUG_MSG("inserting pair: {" << node_to_insert->key() << ": " << node_to_insert->val() << "}");
 
     // Basic case, the tree is empty, so the new pair becomes the root object.
@@ -136,7 +137,7 @@ bool BTree<K, V, cmp>::insert(std::unique_ptr<Node> node_to_insert) {
 }
 
 template <typename K, typename V, typename cmp>
-bool BTree<K, V, cmp>::clear() {
+bool BTree<K, V, cmp>::clear() noexcept {
     if (root) {
         root.reset();
         _size = 0;
@@ -145,7 +146,7 @@ bool BTree<K, V, cmp>::clear() {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(const K &key) const {
+typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(const K &key) const noexcept {
     Node *temp_iter = _traverse_to_closest(key);
 
     if (temp_iter == nullptr)
@@ -163,7 +164,7 @@ typename BTree<K, V, cmp>::Node *BTree<K, V, cmp>::_find(const K &key) const {
 }
 
 template <typename K, typename V, typename cmp>
-typename BTree<K, V, cmp>::iterator &BTree<K, V, cmp>::iterator::operator++() {
+typename BTree<K, V, cmp>::iterator &BTree<K, V, cmp>::iterator::operator++() noexcept {
     if (not _current)
         return *this;
 
@@ -234,7 +235,7 @@ std::pair<K, V> BTree<K, V, cmp>::erase(const K &key) {
 }
 
 template <typename K, typename V, typename cmp>
-V &BTree<K, V, cmp>::operator[](const K &key) {
+V &BTree<K, V, cmp>::operator[](const K &key) noexcept {
     Node *temp_node = _find(key);
     if (temp_node)
         return temp_node->val();
