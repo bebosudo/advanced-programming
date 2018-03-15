@@ -302,41 +302,6 @@ TEST_CASE("iterators: changing the value") {
     }
 }
 
-TEST_CASE("print iterator") {
-    BTree<int, float, std::less<int>> tree;
-    float value = 3.14;
-
-    SUBCASE("single element") {
-        std::cout << std::endl;
-        tree.insert(14, value);
-        tree.print();
-    }
-
-    SUBCASE("two elements") {
-        tree.insert(14, value);
-        tree.insert(10, value);
-        tree.print();
-    }
-
-    SUBCASE("three elements") {
-        tree.insert(14, value);
-        tree.insert(10, value);
-        tree.insert(15, value);
-        tree.print();
-    }
-
-    SUBCASE("multiple elements") {
-        int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
-
-        for (int i = 0; i < 15; i++) {
-            tree.insert(keys[i], value);
-        }
-
-        std::cout << "\nTesting the printing function: ";
-        tree.print();
-    }
-}
-
 TEST_CASE("find method with iterator") {
     BTree<int, float, std::less<int>> tree;
     int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, last_element_seen = 9;
@@ -576,7 +541,7 @@ TEST_CASE("copy/move semantics") {
     }
 }
 
-TEST_CASE("height method") {
+TEST_CASE("height method + some constant methods") {
     BTree<int, float, std::less<int>> tree;
     int keys[] = {9, 14, 4};
     for (int i = 0; i < 3; i++)
@@ -589,6 +554,49 @@ TEST_CASE("height method") {
         tree.insert(keys2[i], keys2[i]);
 
     CHECK(tree.height() == 4);
+
+    SUBCASE("constant mehods") {
+        for (auto it = tree.cbegin(); it != tree.cend(); ++it) {
+            auto pair = it.pair();
+            pair.first = pair.second = 42;
+            CHECK((pair.second == 42));
+        }
+    }
+}
+
+TEST_CASE("print iterator") {
+    BTree<int, float, std::less<int>> tree;
+    float value = 3.14;
+
+    SUBCASE("single element") {
+        std::cout << std::endl;
+        tree.insert(14, value);
+        tree.print();
+    }
+
+    SUBCASE("two elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.print();
+    }
+
+    SUBCASE("three elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.insert(15, value);
+        tree.print();
+    }
+
+    SUBCASE("multiple elements") {
+        int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
+
+        for (int i = 0; i < 15; i++) {
+            tree.insert(keys[i], value);
+        }
+
+        std::cout << "\nTesting the printing function: ";
+        tree.print();
+    }
 }
 
 #endif

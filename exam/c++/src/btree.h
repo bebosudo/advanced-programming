@@ -64,7 +64,7 @@ class BTree {
    public:
     BTree(cmp op = cmp{}) : comparator{op} {};
 
-    unsigned int size() const { return _size; }
+    const unsigned int &size() const { return _size; }
 
     bool insert(const K &key, const V &value) {
         return insert(std::unique_ptr<Node>{new Node(key, value)});
@@ -81,7 +81,7 @@ class BTree {
     }
 
     // unsigned int height() const { return height() <= std::ceil(std::log2(_size)); }
-    bool is_balanced() { return height() <= std::ceil(std::log2(_size)); };
+    bool is_balanced() const { return height() <= std::ceil(std::log2(_size)); };
     // bool is_balanced() const { return height(root.get()); };
 
     class iterator;
@@ -134,14 +134,13 @@ class BTree {
 #ifdef DEBUG
     unsigned int traversal_size() const { return (root) ? root->traverse() : 0; };
     Node *_find_public(const K key) const { return _find(key); }
-    Node *get_root() { return root.get(); }
+    Node *get_root() const { return root.get(); }
 #endif
 };
 
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
    public:
-    // std::pair<K, V> _pair;
     const K _key;
     V _val;
     Node *_parent;
@@ -159,7 +158,7 @@ class BTree<K, V, cmp>::Node {
     const V &val() const { return val(); }
 
 #ifdef DEBUG
-    unsigned int traverse() {
+    unsigned int traverse() const {
         unsigned int sub_nodes = 1;
 
         if (left)
@@ -179,6 +178,7 @@ class BTree<K, V, cmp>::Node {
         while (temp_iter->left) {
             temp_iter = temp_iter->left.get();
         }
+
         return temp_iter;
     }
 };
@@ -216,14 +216,14 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
         return it;
     }
 
-    bool operator==(const iterator &other) {
+    bool operator==(const iterator &other) const {
         if (not this->_current and not other._current)
             return true;
         if (not this->_current != not other._current)
             return false;
         return this->_current == other._current;
     }
-    bool operator!=(const iterator &other) { return !(*this == other); }
+    bool operator!=(const iterator &other) const { return !(*this == other); }
 };
 
 template <typename K, typename V, typename cmp>
