@@ -39,7 +39,7 @@ class BTree {
     }
 
     bool _equal_compare(const K &key1, const K &key2) const noexcept {
-        return (!comparator(key1, key2) and !comparator(key2, key1));
+        return (not comparator(key1, key2) and not comparator(key2, key1));
     }
 
     Node *_traverse_to_closest(const K &key) const noexcept;
