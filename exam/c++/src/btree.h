@@ -143,20 +143,23 @@ class BTree {
 template <typename K, typename V, typename cmp>
 class BTree<K, V, cmp>::Node {
    public:
-    const K _key;
-    V _val;
+    // const K _key;
+    // V _val;
+    std::pair<K, V> _pair;
     Node *_parent;
     std::unique_ptr<BTree::Node> left, right;
 
     // Node(std::pair<K, V> pair, Node *parent = nullptr) : _pair{pair}, _parent{parent} {};
     Node(const K &key, const V &val, Node *parent = nullptr) noexcept
-        : _key{key}, _val{val}, _parent{parent} {};
+        : _pair{key, val}, _parent{parent} {};
 
-    const std::pair<K, V> pair() const noexcept { return std::make_pair(_key, _val); }
-    const K &key() const noexcept { return _key; }
+    // const std::pair<K, V> pair() const noexcept { return std::make_pair(_key, _val); }
+    const std::pair<K, V> pair() const noexcept { return _pair; }
+
+    const K &key() const noexcept { return _pair.first; }
 
     // rw and ro versions.
-    V &val() noexcept { return _val; }
+    V &val() noexcept { return _pair.second; }
     const V &val() const noexcept { return val(); }
 
 #ifdef DEBUG
@@ -185,8 +188,11 @@ class BTree<K, V, cmp>::Node {
     }
 };
 
+// template <typename K, typename V, typename cmp>
+// class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_tag, V> {
 template <typename K, typename V, typename cmp>
-class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_tag, K> {
+class BTree<K, V, cmp>::iterator
+    : public std::iterator<std::forward_iterator_tag, std::pair<K, V>> {
     const BTree *_tree_ref;
     Node *_current;
 
@@ -206,13 +212,14 @@ class BTree<K, V, cmp>::iterator : public std::iterator<std::forward_iterator_ta
 
     const std::pair<K, V> pair() const noexcept { return _current->pair(); }
 
-    V &operator*() const noexcept { return _current->val(); }
+    // V &operator*() const noexcept { return _current->val(); }
+    std::pair<K, V> &operator*() { return _current->_pair; }
 
     // ++it
     iterator &operator++() noexcept;
 
     // it++
-    iterator operator++(int) noexcept {
+    iterator operator++(int)noexcept {
         iterator it{_tree_ref, _current};
         ++(*this);
         return it;

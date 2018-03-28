@@ -278,18 +278,18 @@ TEST_CASE("const_iterator implementation") {
     }
 }
 
-TEST_CASE("iterators: changing the value") {
+TEST_CASE("editable iterators") {
     BTree<int, float, std::less<int>> tree;
 
     tree.insert(42, 3.14);
-    tree.insert(43, 3.14);
     tree.insert(41, 3.14);
+    tree.insert(45, 3.14);
     float val;
     BTree<int, float, std::less<int>>::iterator it = tree.begin();
 
     SUBCASE("use the dereferenced iterator") {
         for (; it != tree.end(); ++it) {
-            val = ++(*it);
+            val = ++((*it).second);
             CHECK(it.val() == val);
         }
     }
@@ -298,6 +298,25 @@ TEST_CASE("iterators: changing the value") {
         for (; it != tree.end(); ++it) {
             val = ++(it.val());
             CHECK(it.val() == val);
+        }
+    }
+
+    SUBCASE("edit the reference to the key (THIS SHOULDN'T BE ALLOWED)") {
+        tree.print();
+        ++(++((*it).first));
+        tree.print();
+
+        // We can retrieve the root only because we are in DEBUG mode.
+        auto root = tree.get_root();
+        std::cout << "in the root there's the pair \t {" << root->_pair.first << ": "
+                  << root->_pair.second << "}\n";
+        if (root->left) {
+            std::cout << "the root has a left child \t {" << root->left->_pair.first << ": "
+                      << root->left->_pair.second << "}\n";
+        }
+        if (root->right) {
+            std::cout << "the root has a right child \t {" << root->right->_pair.first << ": "
+                      << root->right->_pair.second << "}\n";
         }
     }
 }
@@ -325,6 +344,7 @@ TEST_CASE("find method with iterator") {
     }
 }
 
+/*
 TEST_CASE("more thorough test on iterators") {
     BTree<int, double, std::less<int>> tree;
 
@@ -381,9 +401,7 @@ TEST_CASE("more thorough test on iterators") {
         CHECK(sum == doctest::Approx(sum_keys));
 
         auto my_f = [](const decltype(*first) &a, const decltype(*first) &b) -> decltype(a + b) {
-            double res = 0;
-            (b == 2.2 ? res = a : res = a + b);
-            return res;
+            return (b == 2.2 ? a : a + b);
         };
         sum = std::accumulate(first, last, 0.0, my_f);
         CHECK(sum == doctest::Approx(sum_keys));
@@ -410,6 +428,7 @@ TEST_CASE("more thorough test on iterators") {
         }
     }
 }
+*/
 
 TEST_CASE("erase fast test") {
     BTree<int, float, std::less<int>> tree;
