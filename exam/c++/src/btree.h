@@ -187,6 +187,7 @@ class BTree<K, V, cmp>::iterator {
     const K &key() const { return _current->key(); }
     const V &val() const { return _current->val(); }
     const std::pair<K, V> pair() const { return _current->_pair; }
+    std::pair<K, V> &operator*() { return _current->_pair; }
 
     // ++it
     iterator &operator++();

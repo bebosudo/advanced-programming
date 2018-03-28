@@ -1,6 +1,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "btree.h"
 #include "doctest.h"
+#include <numeric>  // std::accumulate
 
 // In doctest, there are three kind of assertion macros: REQUIRE, CHECK and WARN.
 // If a REQUIRE fails, it stops the whole test execution, if a CHECK fails, the tests continue to
@@ -9,7 +10,12 @@
 
 #ifdef DEBUG
 
-TEST_CASE("insert, size+traversal_size and clear methods") {
+template <typename num>
+struct my_comparison {
+    bool operator()(const num &a, const num &b) { return a < b; }
+};
+
+TEST_CASE("insert and size+traversal_size and clear methods") {
     BTree<int, float, std::less<int>> tree;
 
     REQUIRE(tree.size() == 0);
@@ -22,8 +28,7 @@ TEST_CASE("insert, size+traversal_size and clear methods") {
     REQUIRE(tree.size() == 1);
     REQUIRE(tree.traversal_size() == 1);
 
-    DEBUG_MSG(std::boolalpha);
-    DEBUG_MSG("is left set? " << (bool)tree.get_root()->left);
+    DEBUG_MSG(std::boolalpha << "is left set? " << (bool)tree.get_root()->left);
     DEBUG_MSG("is right set? " << (bool)tree.get_root()->right);
 
     DEBUG_MSG("root key=" << tree.get_root()->key() << ", value=" << tree.get_root()->val());
@@ -101,16 +106,16 @@ TEST_CASE("_find private method (exposed by `_find_public` when in debug mode)")
 
     for (int i = 0; i < 20; ++i) {
         tree.insert(keys[i], value);
-        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+        REQUIRE(tree._find_public(keys[i])->val() == value);
     }
 
     // Retrieve all the past keys.
     for (int i = 0; i < 20; ++i) {
-        REQUIRE(tree._find_public(keys[i])->_pair.second == value);
+        REQUIRE(tree._find_public(keys[i])->val() == value);
     }
 
     // Test the root retrieval.
-    REQUIRE(tree._find_public(keys[0])->_pair.second == tree.get_root()->val());
+    REQUIRE(tree._find_public(keys[0])->val() == tree.get_root()->val());
 
     // Searching for a not existing node should return a nullptr.
     REQUIRE(tree._find_public(999999) == nullptr);
@@ -261,41 +266,47 @@ TEST_CASE("const_iterator implementation") {
             last_element_seen = cit.key();
         }
     }
+
+    SUBCASE("test normal iteration with auto iterator") {
+        auto cit2 = tree.cbegin();
+
+        for (; cit2 != tree.cend(); ++cit2) {
+            // We use less_equal so that the lowest number previously seen satisfies the check.
+            CHECK(std::less_equal<int>()(last_element_seen, cit2.key()));
+            last_element_seen = cit2.key();
+        }
+    }
 }
 
-TEST_CASE("print iterator") {
+TEST_CASE("editable iterators") {
     BTree<int, float, std::less<int>> tree;
-    float value = 3.14;
 
-    SUBCASE("single element") {
-        std::cout << std::endl;
-        tree.insert(14, value);
-        tree.print();
-    }
+    float val = 3.14;
+    tree.insert(42, val);
+    tree.insert(43, val);
+    tree.insert(41, val);
+    BTree<int, float, std::less<int>>::iterator it = tree.begin();
 
-    SUBCASE("two elements") {
-        tree.insert(14, value);
-        tree.insert(10, value);
-        tree.print();
-    }
+    // SUBCASE("use the dereferenced iterator") {
+    //     for (; it != tree.end(); ++it) {
+    //         val = ++(*it);
+    //         CHECK(it.val() == val);
+    //     }
+    // }
 
-    SUBCASE("three elements") {
-        tree.insert(14, value);
-        tree.insert(10, value);
-        tree.insert(15, value);
-        tree.print();
-    }
+    // SUBCASE("use the .val() method") {
+    //     for (; it != tree.end(); ++it) {
+    //         val = ++(it.val());
+    //         CHECK(it.val() == val);
+    //     }
+    // }
 
-    SUBCASE("multiple elements") {
-        int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
-
-        for (int i = 0; i < 15; i++) {
-            tree.insert(keys[i], value);
-        }
-
-        std::cout << "\nTesting the printing function: ";
-        tree.print();
-    }
+    // SUBCASE("change the key") {
+    //     for (; it != tree.end(); ++it) {
+    //         val = ++(*it);
+    //         CHECK(it.val() == val);
+    //     }
+    // }
 }
 
 TEST_CASE("find method with iterator") {
@@ -318,6 +329,91 @@ TEST_CASE("find method with iterator") {
     SUBCASE("key not found makes iterator go to end()") {
         BTree<int, float, std::less<int>>::iterator it = tree.find(9999999);
         CHECK((it == tree.end()));  // Parenthesis around the condition are required in these cases.
+    }
+}
+
+TEST_CASE("more thorough test on iterators") {
+    BTree<int, double, std::less<int>> tree;
+
+    int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13}, n_keys = 15;
+    double sum_keys = 0;
+    for (int i = 0; i < n_keys; i++) {
+        tree.insert(keys[i], keys[i]);
+        sum_keys += keys[i];
+    }
+
+    SUBCASE("normal iterators") {
+        auto first = tree.begin(), last = tree.end();
+
+        double sum{0.0};
+
+        sum = std::accumulate(first, last, sum);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        // auto my_f = [](decltype(*first) &a, decltype(*first) &b) -> decltype(a + b) {
+        //     return (b == 2.2 ? a : a + b);
+        // };
+
+        // sum = std::accumulate(first, last, 0.0, my_f);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto it = std::find(first, last, keys[n_keys - 1]);
+        CHECK((it != last));
+
+        std::vector<double> v(tree.size());
+
+        std::copy(first, last, v.begin());
+        double last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+
+        std::sort(v.begin(), v.end(), my_comparison<double>{});
+        last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+    }
+
+    SUBCASE("const iterators") {
+        auto first = tree.cbegin(), last = tree.cend();
+
+        double sum{0.0};
+
+        sum = std::accumulate(first, last, sum);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        // auto my_f = [](const decltype(*first) &a, const decltype(*first) &b) -> decltype(a + b) {
+        //     return (b == 2.2 ? a : a + b);
+        // };
+
+        // sum = std::accumulate(first, last, 0.0, my_f);
+        CHECK(sum == doctest::Approx(sum_keys));
+
+        auto it = std::find(first, last, keys[n_keys - 1]);
+        CHECK((it != last));
+
+        std::vector<double> v(tree.size());
+
+        std::copy(first, last, v.begin());
+        double last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
+
+        std::sort(v.begin(), v.end(), my_comparison<double>{});
+        last_element_seen = v[0];
+
+        for (const auto &x : v) {
+            CHECK(last_element_seen <= x);
+            last_element_seen = x;
+        }
     }
 }
 
@@ -451,7 +547,7 @@ TEST_CASE("copy/move semantics") {
     }
 }
 
-TEST_CASE("height method") {
+TEST_CASE("height method + some constant methods") {
     BTree<int, float, std::less<int>> tree;
     int keys[] = {9, 14, 4};
     for (int i = 0; i < 3; i++)
@@ -464,6 +560,49 @@ TEST_CASE("height method") {
         tree.insert(keys2[i], keys2[i]);
 
     CHECK(tree.height() == 4);
+
+    SUBCASE("constant mehods") {
+        for (auto it = tree.cbegin(); it != tree.cend(); ++it) {
+            auto pair = it.pair();
+            pair.first = pair.second = 42;
+            CHECK((pair.second == 42));
+        }
+    }
+}
+
+TEST_CASE("print iterator") {
+    BTree<int, float, std::less<int>> tree;
+    float value = 3.14;
+
+    SUBCASE("single element") {
+        std::cout << std::endl;
+        tree.insert(14, value);
+        tree.print();
+    }
+
+    SUBCASE("two elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.print();
+    }
+
+    SUBCASE("three elements") {
+        tree.insert(14, value);
+        tree.insert(10, value);
+        tree.insert(15, value);
+        tree.print();
+    }
+
+    SUBCASE("multiple elements") {
+        int keys[] = {9, 14, 4, 6, 2, 5, 12, 7, 3, 1, 8, 11, 10, 15, 13};
+
+        for (int i = 0; i < 15; i++) {
+            tree.insert(keys[i], value);
+        }
+
+        std::cout << "\nTesting the printing function: ";
+        tree.print();
+    }
 }
 
 #endif
